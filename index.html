@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- ✅ PWA -->
+  <meta name="theme-color" content="#007bff">
+  <link rel="manifest" href="manifest.json">
+
+  <title>Présences aux réunions</title>
+
+  <style>
+    :root{
+      --bg:#f4f6f8;
+      --card:#ffffff;
+      --ink:#111;
+      --muted:#6c757d;
+      --line:#e6e6e6;
+      --primary:#007bff;
+      --secondary:#6c757d;
+      --danger:#d62828;
+      --shadow: 0 2px 10px rgba(0,0,0,.08);
+      --radius:14px;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      padding: 14px;
+      max-width: 920px;
+      margin-inline:auto;
+    }
+
+    h1{
+      margin: 8px 0 14px;
+      text-align:center;
+      font-size: 22px;
+      letter-spacing: .2px;
+    }
+
+    .card{
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    label{
+      display:block;
+      margin-top: 10px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    input, select, button{
+      width: 100%;
+      padding: 12px 12px;
+      margin-top: 8px;
+      font-size: 16px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      outline: none;
+      background: #fff;
+    }
+
+    input:focus, select:focus{
+      border-color: rgba(0,123,255,.55);
+      box-shadow: 0 0 0 4px rgba(0,123,255,.12);
+    }
+
+    .row{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .row > *{ flex: 1; min-width: 220px; }
+
+    .btn{
+      border: none;
+      cursor: pointer;
+      font-weight: 800;
+      letter-spacing: .2px;
+      padding: 14px 12px;
+      border-radius: 14px;
+      transition: transform .02s ease, opacity .15s ease;
+    }
+    .btn:active{ transform: scale(.99); opacity:.92; }
+    .btn-primary{ background: var(--primary); color:#fff; }
+    .btn-secondary{ background: var(--secondary); color:#fff; }
+
+    .hint{
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 6px;
+      line-height: 1.2;
+    }
+
+    /* Accordéon */
+    details.month{
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+    details.month + details.month{ margin-top: 10px; }
+
+    summary.month-summary{
+      list-style: none;
+      cursor: pointer;
+      padding: 14px 14px;
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+      user-select: none;
+    }
+    summary.month-summary::-webkit-details-marker{ display:none; }
+
+    .month-left{
+      display:flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+    .month-title{
+      font-weight: 900;
+      text-transform: capitalize;
+      font-size: 16px;
+      line-height: 1.1;
+    }
+    .month-meta{
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .month-actions{
+      display:flex;
+      gap: 8px;
+      align-items:center;
+      flex-shrink: 0;
+    }
+    .mini-btn{
+      width: auto;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: none;
+      cursor:pointer;
+      font-weight: 900;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+    .mini-secondary{ background: var(--secondary); color:#fff; }
+    .mini-ghost{ background:#f0f2f4; border:1px solid var(--line); color:#111; }
+
+    .month-body{
+      padding: 0 14px 14px;
+      border-top: 1px solid var(--line);
+    }
+
+    /* Liste mobile */
+    .list{
+      margin-top: 10px;
+      display:flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .item{
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px 12px;
+      display:flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: #fff;
+    }
+    .item-left{
+      display:flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width:0;
+    }
+    .item-date{
+      font-weight: 900;
+      font-size: 14px;
+    }
+    .item-pres{
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 13px;
+    }
+    .item-right{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .pill{
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background:#f7f8fa;
+      font-weight: 900;
+      min-width: 62px;
+      text-align:center;
+    }
+    .del{
+      border: none;
+      background: transparent;
+      color: var(--danger);
+      font-size: 18px;
+      font-weight: 900;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 10px;
+    }
+    .del:active{ background: rgba(214,40,40,.08); }
+
+    .empty{
+      color: var(--muted);
+      font-weight: 750;
+      font-size: 14px;
+      padding: 6px 2px;
+    }
+
+    @media (max-width: 480px){
+      body{ padding: 10px; }
+      h1{ font-size: 20px; }
+      .row > *{ min-width: 100%; }
+      summary.month-summary{ padding: 12px; }
+      .month-body{ padding: 0 12px 12px; }
+      .mini-btn{ padding: 10px 10px; font-size: 13px; }
+      .pill{ min-width: 56px; }
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Présences aux réunions</h1>
+
+  <div class="card">
+    <label for="date">Date de la réunion</label>
+    <input type="date" id="date" />
+
+    <label for="count">Nombre de présents</label>
+    <input type="number" id="count" min="0" inputmode="numeric" placeholder="Ex: 84" />
+
+    <div class="row">
+      <div>
+        <label for="yearFilter">Filtrer par année (affichage + export)</label>
+        <select id="yearFilter"></select>
+        <div class="hint">Choisis une année ou “Toutes”.</div>
+      </div>
+
+      <div>
+        <label for="exportMonth">Mois à exporter (PDF)</label>
+        <select id="exportMonth"></select>
+        <div class="hint">“Tous les mois” exporte selon l’année filtrée.</div>
+      </div>
+    </div>
+
+    <div class="row">
+      <button class="btn btn-primary" id="addBtn">Ajouter</button>
+      <button class="btn btn-secondary" id="exportBtn">Exporter PDF</button>
+    </div>
+
+    <div class="hint">Astuce : après “Ajouter”, tu peux directement retaper un nombre (focus automatique).</div>
+  </div>
+
+  <div class="card" id="monthlyContainer"></div>
+
+  <!-- jsPDF + AutoTable -->
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+
+  <script>
+    let data = JSON.parse(localStorage.getItem("presences")) || [];
+
+    function formatDateFR(dateISO) {
+      const [y,m,d] = dateISO.split("-");
+      return `${d}/${m}/${y}`;
+    }
+    function monthKey(dateISO) { return dateISO.slice(0, 7); } // YYYY-MM
+    function yearKey(dateISO) { return dateISO.slice(0, 4); }  // YYYY
+    function getMonthLabelFromKey(keyYYYYMM) {
+      const [y, m] = keyYYYYMM.split("-");
+      const dt = new Date(`${y}-${m}-01T00:00:00`);
+      return dt.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+    }
+
+    function getYearFilterValue() {
+      return document.getElementById("yearFilter").value || "ALL";
+    }
+    function getFilteredData() {
+      const y = getYearFilterValue();
+      if (y === "ALL") return data;
+      return data.filter(e => yearKey(e.date) === y);
+    }
+
+    function groupByMonth(entries) {
+      const groups = {};
+      entries.forEach(entry => {
+        const key = monthKey(entry.date);
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(entry);
+      });
+      return groups;
+    }
+
+    function saveAndRender() {
+      localStorage.setItem("presences", JSON.stringify(data));
+      render();
+    }
+
+    function addEntry() {
+      const date = document.getElementById("date").value;
+      const countEl = document.getElementById("count");
+      const count = countEl.value;
+
+      if (!date || count === "") {
+        alert("Merci de remplir tous les champs.");
+        return;
+      }
+
+      data.push({ date, count: Number(count) });
+      data.sort((a,b) => a.date.localeCompare(b.date));
+
+      countEl.value = "";
+      saveAndRender();
+      countEl.focus();
+    }
+
+    function deleteEntry(indexInAllData) {
+      data.splice(indexInAllData, 1);
+      saveAndRender();
+    }
+
+    function refreshYearDropdown() {
+      const select = document.getElementById("yearFilter");
+      const current = select.value || "ALL";
+      const years = Array.from(new Set(data.map(e => yearKey(e.date)))).sort();
+
+      select.innerHTML = "";
+      const optAll = document.createElement("option");
+      optAll.value = "ALL";
+      optAll.textContent = "Toutes les années";
+      select.appendChild(optAll);
+
+      years.forEach(y => {
+        const opt = document.createElement("option");
+        opt.value = y;
+        opt.textContent = y;
+        select.appendChild(opt);
+      });
+
+      if ([ "ALL", ...years ].includes(current)) select.value = current;
+      else select.value = years.length ? years[years.length - 1] : "ALL";
+
+      select.disabled = years.length === 0;
+    }
+
+    function refreshMonthDropdown(groups) {
+      const select = document.getElementById("exportMonth");
+      const currentValue = select.value || "ALL";
+      const keys = Object.keys(groups).sort((a,b) => a.localeCompare(b));
+
+      select.innerHTML = "";
+      const optAll = document.createElement("option");
+      optAll.value = "ALL";
+      optAll.textContent = "Tous les mois";
+      select.appendChild(optAll);
+
+      keys.forEach(k => {
+        const opt = document.createElement("option");
+        opt.value = k;
+        opt.textContent = getMonthLabelFromKey(k);
+        select.appendChild(opt);
+      });
+
+      if ([ "ALL", ...keys ].includes(currentValue)) select.value = currentValue;
+      else select.value = keys.length ? keys[keys.length - 1] : "ALL";
+
+      select.disabled = keys.length === 0;
+    }
+
+    function doExportPDF(keysToExport, groups, baseName) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+      let y = 18;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+
+      const title = (keysToExport.length === 1)
+        ? `Présences aux réunions (${getMonthLabelFromKey(keysToExport[0])})`
+        : "Présences aux réunions (par mois)";
+
+      doc.text(title, 14, y);
+      y += 10;
+
+      keysToExport.forEach((key, idx) => {
+        const entries = groups[key];
+        const total = entries.reduce((s,e)=>s+e.count,0);
+        const avg = (total / entries.length).toFixed(1);
+
+        doc.setFontSize(13);
+        doc.text(getMonthLabelFromKey(key), 14, y);
+        y += 4;
+
+        doc.setFontSize(11);
+        doc.text(`Réunions : ${entries.length} | Total : ${total} | Moyenne : ${avg}`, 14, y);
+        y += 4;
+
+        doc.autoTable({
+          startY: y,
+          head: [["Date", "Présents"]],
+          body: entries.map(e => [formatDateFR(e.date), String(e.count)]),
+          styles: { font: "helvetica", fontSize: 10 }
+        });
+
+        y = doc.lastAutoTable.finalY + 10;
+
+        if (y > 270 && idx < keysToExport.length - 1) {
+          doc.addPage();
+          y = 18;
+        }
+      });
+
+      const today = new Date().toISOString().slice(0,10);
+      doc.save(`${baseName}_${today}.pdf`);
+    }
+
+    function exportMonthPDF(keyYYYYMM) {
+      const filtered = getFilteredData();
+      const groups = groupByMonth(filtered);
+
+      if (!groups[keyYYYYMM]) {
+        alert("Aucune donnée pour ce mois (avec l’année filtrée).");
+        return;
+      }
+      doExportPDF([keyYYYYMM], groups, `presences_${keyYYYYMM}`);
+    }
+
+    function exportPDF() {
+      if (!data.length) {
+        alert("Aucune donnée à exporter.");
+        return;
+      }
+
+      const selected = document.getElementById("exportMonth").value; // ALL ou YYYY-MM
+      const filtered = getFilteredData();
+      const groups = groupByMonth(filtered);
+      const keys = Object.keys(groups).sort((a,b)=>a.localeCompare(b));
+
+      if (!keys.length) {
+        alert("Aucune donnée pour l’année sélectionnée.");
+        return;
+      }
+
+      let keysToExport = [];
+      if (selected === "ALL") keysToExport = keys;
+      else {
+        if (!groups[selected]) {
+          alert("Ce mois n'a aucune donnée (avec l’année filtrée).");
+          return;
+        }
+        keysToExport = [selected];
+      }
+
+      const y = getYearFilterValue();
+      const baseName =
+        (selected === "ALL")
+          ? (y === "ALL" ? "presences_tous_mois" : `presences_${y}_tous_mois`)
+          : (y === "ALL" ? `presences_${selected}` : `presences_${y}_${selected}`);
+
+      doExportPDF(keysToExport, groups, baseName);
+    }
+
+    function toggleDetails(btn){
+      const details = btn.closest("details");
+      details.open = !details.open;
+    }
+
+    function render() {
+      refreshYearDropdown();
+
+      const container = document.getElementById("monthlyContainer");
+      container.innerHTML = "";
+
+      const filtered = getFilteredData();
+      const groups = groupByMonth(filtered);
+      refreshMonthDropdown(groups);
+
+      const monthKeys = Object.keys(groups).sort((a,b)=>a.localeCompare(b));
+
+      if (!monthKeys.length) {
+        container.innerHTML = `<div class="empty">Aucune donnée (ou aucune donnée pour l’année sélectionnée).</div>`;
+        return;
+      }
+
+      const lastKey = monthKeys[monthKeys.length - 1];
+
+      monthKeys.forEach(key => {
+        const entries = groups[key];
+        const total = entries.reduce((s,e)=>s+e.count,0);
+        const avg = (total / entries.length).toFixed(1);
+
+        const rows = entries.map(e => {
+          const idxInAll = data.indexOf(e);
+          return `
+            <div class="item">
+              <div class="item-left">
+                <div class="item-date">${formatDateFR(e.date)}</div>
+                <div class="item-pres">Présents</div>
+              </div>
+              <div class="item-right">
+                <div class="pill">${e.count}</div>
+                <button class="del" onclick="deleteEntry(${idxInAll})" aria-label="Supprimer">✖</button>
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        const details = document.createElement("details");
+        details.className = "month";
+        if (key === lastKey) details.open = true;
+
+        details.innerHTML = `
+          <summary class="month-summary">
+            <div class="month-left">
+              <div class="month-title">${getMonthLabelFromKey(key)}</div>
+              <div class="month-meta">Réunions : ${entries.length} • Total : ${total} • Moyenne : ${avg}</div>
+            </div>
+            <div class="month-actions">
+              <button class="mini-btn mini-secondary" type="button"
+                onclick="event.preventDefault(); exportMonthPDF('${key}')">Exporter</button>
+              <button class="mini-btn mini-ghost" type="button"
+                onclick="event.preventDefault(); toggleDetails(this)">Ouvrir/Fermer</button>
+            </div>
+          </summary>
+
+          <div class="month-body">
+            <div class="list">
+              ${rows || `<div class="empty">Aucune réunion ce mois.</div>`}
+            </div>
+          </div>
+        `;
+
+        container.appendChild(details);
+      });
+    }
+
+    function init() {
+      // Date par défaut = aujourd'hui
+      document.getElementById("date").value = new Date().toISOString().slice(0,10);
+
+      document.getElementById("addBtn").addEventListener("click", addEntry);
+      document.getElementById("exportBtn").addEventListener("click", exportPDF);
+      document.getElementById("yearFilter").addEventListener("change", render);
+
+      document.getElementById("count").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") addEntry();
+      });
+
+      render();
+      document.getElementById("count").focus();
+    }
+
+    init();
+  </script>
+
+  <!-- ✅ PWA : service worker -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js");
+    }
+  </script>
+</body>
+</html>

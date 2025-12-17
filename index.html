@@ -32,6 +32,31 @@
       margin-bottom:14px;
     }
 
+    /* Choix groupe */
+    .center{
+      min-height: calc(100vh - 40px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .pick-wrap{ width:100%; max-width:520px; }
+    .pick-title{ text-align:center; font-weight:900; font-size:20px; margin-bottom:10px; }
+    .pick-sub{ text-align:center; color:var(--muted); font-weight:700; margin-bottom:14px; }
+    .pick-row{ display:flex; gap:10px; flex-wrap:wrap; }
+    .pick-btn{
+      flex:1;
+      min-width:240px;
+      padding:18px 14px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background:#fff;
+      font-size:18px;
+      font-weight:900;
+      cursor:pointer;
+      box-shadow: var(--shadow);
+    }
+    .pick-btn:active{ transform:scale(.99); opacity:.95; }
+
     label{ display:block; margin-top:10px; font-weight:800; font-size:14px; }
     input, select{
       width:100%;
@@ -58,7 +83,6 @@
     .btn-primary{ background:var(--primary); color:#fff; }
     .btn-secondary{ background:var(--secondary); color:#fff; }
 
-    /* Accordéons */
     details.block{
       background:#fff;
       border:1px solid var(--line);
@@ -94,7 +118,6 @@
       flex-shrink:0;
     }
 
-    /* Boutons icônes (plus légers) */
     .icon-btn{
       width:40px;
       height:40px;
@@ -115,7 +138,6 @@
       fill:#111;
     }
 
-    /* Flèches (plus discrètes) */
     .chev{
       font-weight:900;
       font-size:14px;
@@ -128,7 +150,6 @@
     details.block:not([open]) .chev::before { content:"▼"; }
     details.block[open] .chev::before { content:"▲"; }
 
-    /* Listes d’entrées */
     .list{
       padding:10px 14px 14px;
       display:flex;
@@ -172,6 +193,33 @@
     }
 
     .hint{ color:var(--muted); font-size:13px; margin-top:8px; font-weight:700; }
+    .topline{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-weight:900;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#f7f8fa;
+    }
+    .link-btn{
+      border:none;
+      background:transparent;
+      color:var(--muted);
+      font-weight:900;
+      cursor:pointer;
+      padding:8px 10px;
+      border-radius:10px;
+    }
+    .link-btn:active{ background:rgba(0,0,0,.05); }
 
     @media (max-width:480px){
       body{ padding:10px; }
@@ -180,51 +228,96 @@
       .icon-btn{ width:36px; height:36px; }
       .icon-btn span{ font-size:17px; }
       .share-icon{ width:16px; height:16px; }
+      .pick-btn{ min-width:100%; }
     }
   </style>
 </head>
 
 <body>
 
-<h1>Présences aux réunions</h1>
-
-<div class="card">
-  <label>Date de la réunion</label>
-  <input type="date" id="date">
-
-  <label>Nombre de présents</label>
-  <input type="number" id="count" min="0" inputmode="numeric" placeholder="Ex: 84">
-
-  <div class="row">
-    <button class="btn btn-primary" id="addBtn">Ajouter</button>
-  </div>
-
-  <div class="row">
-    <div>
-      <label>Période à exporter (PDF)</label>
-      <select id="exportPeriod"></select>
-      <div class="hint">Tu peux aussi exporter/partager un mois via les icônes dans la liste.</div>
+<!-- ÉCRAN CHOIX GROUPE -->
+<div id="pickScreen" class="center" style="display:none;">
+  <div class="pick-wrap">
+    <div class="pick-title">Choisis le groupe</div>
+    <div class="pick-sub">Ce choix reste enregistré sur ce téléphone.</div>
+    <div class="pick-row">
+      <button class="pick-btn" id="pickFR">Ixelles FR</button>
+      <button class="pick-btn" id="pickROM">Ixelles ROM</button>
     </div>
-  </div>
-
-  <div class="row">
-    <button class="btn btn-secondary" id="exportBtn">Exporter PDF</button>
   </div>
 </div>
 
-<div class="card" id="container"></div>
+<!-- APP -->
+<div id="appScreen" style="display:none;">
+  <h1>Présences aux réunions</h1>
+
+  <div class="card">
+    <div class="topline">
+      <div class="badge" id="groupBadge">Groupe</div>
+      <button class="link-btn" id="changeGroupBtn" title="Changer de groupe">Changer</button>
+    </div>
+
+    <label>Date de la réunion</label>
+    <input type="date" id="date">
+
+    <label>Nombre de présents</label>
+    <input type="number" id="count" min="0" inputmode="numeric" placeholder="Ex: 84">
+
+    <div class="row">
+      <button class="btn btn-primary" id="addBtn">Ajouter</button>
+    </div>
+
+    <div class="row">
+      <div>
+        <label>Période à exporter (PDF)</label>
+        <select id="exportPeriod"></select>
+        <div class="hint">Export global = seulement pour ce groupe.</div>
+      </div>
+    </div>
+
+    <div class="row">
+      <button class="btn btn-secondary" id="exportBtn">Exporter PDF</button>
+    </div>
+  </div>
+
+  <div class="card" id="container"></div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
 
 <script>
-  let data = JSON.parse(localStorage.getItem("presences")) || [];
+  // ====== Config groupes ======
+  const GROUPS = {
+    FR: "Ixelles FR",
+    ROM: "Ixelles ROM"
+  };
+
+  // Données stockées séparément par groupe (dans localStorage)
+  function storageKey(group){ return `presences_${group}`; }
+
+  function loadData(group){
+    return JSON.parse(localStorage.getItem(storageKey(group)) || "[]");
+  }
+  function saveData(group, arr){
+    localStorage.setItem(storageKey(group), JSON.stringify(arr));
+  }
+
+  // Groupe actif
+  let activeGroup = localStorage.getItem("active_group") || "";
+  let data = [];
+
+  // ====== DOM ======
+  const $pickScreen = document.getElementById("pickScreen");
+  const $appScreen  = document.getElementById("appScreen");
+  const $groupBadge = document.getElementById("groupBadge");
 
   const $date = document.getElementById("date");
   const $count = document.getElementById("count");
   const $container = document.getElementById("container");
   const $exportPeriod = document.getElementById("exportPeriod");
 
+  // ===== Helpers =====
   function formatDateFR(dateISO){
     const [y,m,d] = dateISO.split("-");
     return `${d}/${m}/${y}`;
@@ -234,11 +327,6 @@
 
   function monthLabel(yyyyMM){
     return new Date(yyyyMM + "-01").toLocaleDateString("fr-FR", { month:"long", year:"numeric" });
-  }
-
-  function save(){
-    localStorage.setItem("presences", JSON.stringify(data));
-    render();
   }
 
   function groupYearMonth(entries){
@@ -253,53 +341,69 @@
     return out;
   }
 
+  function openAndScrollTo(y, m){
+    const yearEl = document.querySelector(`details.block[data-year="${y}"]`);
+    const monthEl = document.querySelector(`details.block[data-month="${m}"]`);
+    if(yearEl) yearEl.open = true;
+    if(monthEl) monthEl.open = true;
+    const target = monthEl || yearEl;
+    if(target) target.scrollIntoView({ behavior:"smooth", block:"start" });
+  }
+
   function refreshExportPeriod(){
     const years = [...new Set(data.map(e=>yearKey(e.date)))].sort();
     const monthsAll = [...new Set(data.map(e=>monthKey(e.date)))].sort();
 
     const current = $exportPeriod.value || "ALL";
-
     $exportPeriod.innerHTML = "";
 
-    // Tout
     const optAll = document.createElement("option");
     optAll.value = "ALL";
     optAll.textContent = "Tout (toutes années)";
     $exportPeriod.appendChild(optAll);
 
-    // Années
     years.forEach(y=>{
       const o = document.createElement("option");
       o.value = `Y:${y}`;
       o.textContent = `Année ${y}`;
       $exportPeriod.appendChild(o);
 
-      // Mois de cette année
-      monthsAll
-        .filter(m => m.startsWith(y + "-"))
-        .forEach(m=>{
-          const mo = document.createElement("option");
-          mo.value = `M:${m}`;
-          mo.textContent = `— ${monthLabel(m)}`;
-          $exportPeriod.appendChild(mo);
-        });
+      monthsAll.filter(m => m.startsWith(y + "-")).forEach(m=>{
+        const mo = document.createElement("option");
+        mo.value = `M:${m}`;
+        mo.textContent = `— ${monthLabel(m)}`;
+        $exportPeriod.appendChild(mo);
+      });
     });
 
-    // Restore selection if possible
-    const validValues = new Set(Array.from($exportPeriod.options).map(o => o.value));
-    $exportPeriod.value = validValues.has(current) ? current : "ALL";
+    const valid = new Set(Array.from($exportPeriod.options).map(o => o.value));
+    $exportPeriod.value = valid.has(current) ? current : "ALL";
+  }
+
+  function getMonthsForPeriod(periodValue){
+    const monthsAll = [...new Set(data.map(e=>monthKey(e.date)))].sort();
+
+    if(periodValue === "ALL") return monthsAll;
+    if(periodValue.startsWith("Y:")){
+      const y = periodValue.slice(2);
+      return monthsAll.filter(m => m.startsWith(y + "-"));
+    }
+    if(periodValue.startsWith("M:")){
+      const m = periodValue.slice(2);
+      return monthsAll.includes(m) ? [m] : [];
+    }
+    return [];
   }
 
   async function buildPdfBlob(monthKeysToExport){
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-
     const keys = [...monthKeysToExport].sort();
 
     keys.forEach((k, idx)=>{
       if(idx > 0) doc.addPage();
       doc.setFontSize(14);
-      doc.text(`Présences – ${monthLabel(k)}`, 14, 16);
+      doc.text(`${GROUPS[activeGroup]} — ${monthLabel(k)}`, 14, 16);
 
       const entries = data.filter(e => monthKey(e.date) === k);
       doc.autoTable({
@@ -323,24 +427,6 @@
     URL.revokeObjectURL(url);
   }
 
-  function getMonthsForPeriod(periodValue){
-    const monthsAll = [...new Set(data.map(e=>monthKey(e.date)))].sort();
-
-    if(periodValue === "ALL") return monthsAll;
-
-    if(periodValue.startsWith("Y:")){
-      const y = periodValue.slice(2);
-      return monthsAll.filter(m => m.startsWith(y + "-"));
-    }
-
-    if(periodValue.startsWith("M:")){
-      const m = periodValue.slice(2);
-      return monthsAll.includes(m) ? [m] : [];
-    }
-
-    return [];
-  }
-
   async function exportSelected(){
     if(!data.length){ alert("Aucune donnée à exporter."); return; }
 
@@ -351,11 +437,10 @@
     const blob = await buildPdfBlob(months);
 
     const today = new Date().toISOString().slice(0,10);
-    let name = `presences_${today}.pdf`;
-
-    if(period === "ALL") name = `presences_tout_${today}.pdf`;
-    else if(period.startsWith("Y:")) name = `presences_${period.slice(2)}_${today}.pdf`;
-    else if(period.startsWith("M:")) name = `presences_${period.slice(2)}_${today}.pdf`;
+    let name = `presences_${activeGroup}_${today}.pdf`;
+    if(period === "ALL") name = `presences_${activeGroup}_tout_${today}.pdf`;
+    else if(period.startsWith("Y:")) name = `presences_${activeGroup}_${period.slice(2)}_${today}.pdf`;
+    else if(period.startsWith("M:")) name = `presences_${activeGroup}_${period.slice(2)}_${today}.pdf`;
 
     downloadBlob(blob, name);
   }
@@ -363,46 +448,61 @@
   async function exportMonth(yyyyMM){
     const blob = await buildPdfBlob([yyyyMM]);
     const today = new Date().toISOString().slice(0,10);
-    downloadBlob(blob, `presences_${yyyyMM}_${today}.pdf`);
+    downloadBlob(blob, `presences_${activeGroup}_${yyyyMM}_${today}.pdf`);
   }
 
   async function shareMonth(yyyyMM){
     const blob = await buildPdfBlob([yyyyMM]);
     const today = new Date().toISOString().slice(0,10);
-    const file = new File([blob], `presences_${yyyyMM}_${today}.pdf`, { type:"application/pdf" });
+    const file = new File([blob], `presences_${activeGroup}_${yyyyMM}_${today}.pdf`, { type:"application/pdf" });
 
     if(navigator.share && navigator.canShare && navigator.canShare({ files:[file] })){
       try{
         await navigator.share({
-          title: "Présences aux réunions",
-          text: `Présences – ${monthLabel(yyyyMM)}`,
+          title: `${GROUPS[activeGroup]} — Présences`,
+          text: `${GROUPS[activeGroup]} — ${monthLabel(yyyyMM)}`,
           files: [file]
         });
       }catch{}
     }else{
-      downloadBlob(blob, `presences_${yyyyMM}_${today}.pdf`);
+      downloadBlob(blob, `presences_${activeGroup}_${yyyyMM}_${today}.pdf`);
       alert("Partage direct non supporté ici. PDF téléchargé : tu peux l’envoyer via WhatsApp/Mail.");
     }
   }
 
-  function openAndScrollTo(y, m){
-    const yearEl = document.querySelector(`details.block[data-year="${y}"]`);
-    const monthEl = document.querySelector(`details.block[data-month="${m}"]`);
+  // Expose for inline onclick
+  window.deleteEntry = function(index){
+    data.splice(index, 1);
+    saveData(activeGroup, data);
+    render();
+  };
 
-    if(yearEl) yearEl.open = true;
-    if(monthEl) monthEl.open = true;
-
-    const target = monthEl || yearEl;
-    if(target){
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
+  function addEntry(){
+    if(!$date.value || $count.value === ""){
+      alert("Champs manquants");
+      return;
     }
+
+    const d = $date.value;
+    const y = yearKey(d);
+    const m = monthKey(d);
+
+    data.push({ date: d, count: Number($count.value) });
+    data.sort((a,b)=>a.date.localeCompare(b.date));
+
+    $count.value = "";
+    saveData(activeGroup, data);
+    render();
+
+    setTimeout(()=>openAndScrollTo(y,m), 50);
+    $count.focus();
   }
 
   function render(){
+    $groupBadge.textContent = GROUPS[activeGroup] || "Groupe ?";
     refreshExportPeriod();
 
     $container.innerHTML = "";
-
     const grouped = groupYearMonth(data);
     const years = Object.keys(grouped).sort();
 
@@ -492,38 +592,32 @@
     });
   }
 
-  // Expose deleteEntry for inline onclick
-  window.deleteEntry = deleteEntry;
-
-  function deleteEntry(index){
-    data.splice(index, 1);
-    save();
+  function showPick(){
+    $appScreen.style.display = "none";
+    $pickScreen.style.display = "flex";
   }
 
-  function addEntry(){
-    if(!$date.value || $count.value === ""){
-      alert("Champs manquants");
-      return;
-    }
-
-    const d = $date.value;
-    const y = yearKey(d);
-    const m = monthKey(d);
-
-    data.push({ date: d, count: Number($count.value) });
-    data.sort((a,b)=>a.date.localeCompare(b.date));
-
-    $count.value = "";
-    localStorage.setItem("presences", JSON.stringify(data));
+  function showApp(){
+    $pickScreen.style.display = "none";
+    $appScreen.style.display = "block";
+    data = loadData(activeGroup);
     render();
+  }
 
-    // ✅ auto-open + scroll
-    setTimeout(() => openAndScrollTo(y, m), 50);
-
-    $count.focus();
+  function setGroup(g){
+    activeGroup = g;
+    localStorage.setItem("active_group", g);
+    showApp();
   }
 
   // events
+  document.getElementById("pickFR").addEventListener("click", ()=>setGroup("FR"));
+  document.getElementById("pickROM").addEventListener("click", ()=>setGroup("ROM"));
+  document.getElementById("changeGroupBtn").addEventListener("click", ()=>{
+    // retour à l’écran de choix
+    showPick();
+  });
+
   document.getElementById("addBtn").addEventListener("click", addEntry);
   document.getElementById("exportBtn").addEventListener("click", exportSelected);
   $count.addEventListener("keydown", (e)=>{ if(e.key === "Enter") addEntry(); });
@@ -531,7 +625,9 @@
   // default date
   $date.value = new Date().toISOString().slice(0,10);
 
-  render();
+  // boot
+  if(!activeGroup || !GROUPS[activeGroup]) showPick();
+  else showApp();
 </script>
 
 <!-- PWA service worker -->

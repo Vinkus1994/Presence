@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- ✅ PWA -->
+  <!-- PWA -->
   <meta name="theme-color" content="#007bff">
   <link rel="manifest" href="manifest.json">
 
@@ -12,577 +12,534 @@
 
   <style>
     :root{
-      --bg:#f4f6f8;
-      --card:#ffffff;
-      --ink:#111;
-      --muted:#6c757d;
-      --line:#e6e6e6;
-      --primary:#007bff;
-      --secondary:#6c757d;
-      --danger:#d62828;
-      --shadow: 0 2px 10px rgba(0,0,0,.08);
-      --radius:14px;
+      --bg:#f4f6f8; --card:#fff; --ink:#111; --muted:#6c757d; --line:#e6e6e6;
+      --primary:#007bff; --secondary:#6c757d; --danger:#d62828;
+      --shadow: 0 2px 10px rgba(0,0,0,.08); --radius:14px;
     }
-
     *{ box-sizing:border-box; }
     body{
-      margin:0;
+      margin:0; padding:14px; max-width:920px; margin-inline:auto;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--ink);
-      padding: 14px;
-      max-width: 920px;
-      margin-inline:auto;
+      background:var(--bg); color:var(--ink);
     }
-
-    h1{
-      margin: 8px 0 14px;
-      text-align:center;
-      font-size: 22px;
-      letter-spacing: .2px;
-    }
+    h1{ margin:8px 0 14px; text-align:center; font-size:22px; }
 
     .card{
-      background: var(--card);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 14px;
-      margin-bottom: 14px;
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:14px;
+      margin-bottom:14px;
     }
 
-    label{
-      display:block;
-      margin-top: 10px;
-      font-weight: 700;
-      font-size: 14px;
+    label{ display:block; margin-top:10px; font-weight:800; font-size:14px; }
+    input, select{
+      width:100%;
+      padding:12px;
+      margin-top:8px;
+      font-size:16px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#fff;
+      outline:none;
     }
 
-    input, select, button{
-      width: 100%;
-      padding: 12px 12px;
-      margin-top: 8px;
-      font-size: 16px;
-      border-radius: 12px;
-      border: 1px solid var(--line);
-      outline: none;
-      background: #fff;
-    }
-
-    input:focus, select:focus{
-      border-color: rgba(0,123,255,.55);
-      box-shadow: 0 0 0 4px rgba(0,123,255,.12);
-    }
-
-    .row{
-      display:flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 10px;
-    }
-    .row > *{ flex: 1; min-width: 220px; }
+    .row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+    .row > *{ flex:1; min-width:220px; }
 
     .btn{
-      border: none;
-      cursor: pointer;
-      font-weight: 800;
-      letter-spacing: .2px;
-      padding: 14px 12px;
-      border-radius: 14px;
-      transition: transform .02s ease, opacity .15s ease;
-    }
-    .btn:active{ transform: scale(.99); opacity:.92; }
-    .btn-primary{ background: var(--primary); color:#fff; }
-    .btn-secondary{ background: var(--secondary); color:#fff; }
-
-    .hint{
-      color: var(--muted);
-      font-size: 13px;
-      margin-top: 6px;
-      line-height: 1.2;
-    }
-
-    /* Accordéon */
-    details.month{
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      overflow: hidden;
-      margin-top: 10px;
-    }
-    details.month + details.month{ margin-top: 10px; }
-
-    summary.month-summary{
-      list-style: none;
-      cursor: pointer;
-      padding: 14px 14px;
-      display:flex;
-      align-items:center;
-      justify-content: space-between;
-      gap: 10px;
-      user-select: none;
-    }
-    summary.month-summary::-webkit-details-marker{ display:none; }
-
-    .month-left{
-      display:flex;
-      flex-direction: column;
-      gap: 4px;
-      min-width: 0;
-    }
-    .month-title{
-      font-weight: 900;
-      text-transform: capitalize;
-      font-size: 16px;
-      line-height: 1.1;
-    }
-    .month-meta{
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 700;
-      line-height: 1.1;
-    }
-
-    .month-actions{
-      display:flex;
-      gap: 8px;
-      align-items:center;
-      flex-shrink: 0;
-    }
-    .mini-btn{
-      width: auto;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: none;
+      border:none;
       cursor:pointer;
-      font-weight: 900;
-      font-size: 14px;
-      white-space: nowrap;
+      font-weight:900;
+      padding:14px;
+      border-radius:14px;
+      width:100%;
     }
-    .mini-secondary{ background: var(--secondary); color:#fff; }
-    .mini-ghost{ background:#f0f2f4; border:1px solid var(--line); color:#111; }
+    .btn-primary{ background:var(--primary); color:#fff; }
+    .btn-secondary{ background:var(--secondary); color:#fff; }
 
-    .month-body{
-      padding: 0 14px 14px;
-      border-top: 1px solid var(--line);
+    /* Accordéons */
+    details.block{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:14px;
+      margin-top:10px;
+      overflow:hidden;
     }
+    summary.sum{
+      list-style:none;
+      cursor:pointer;
+      padding:14px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      user-select:none;
+    }
+    summary.sum::-webkit-details-marker{ display:none; }
 
-    /* Liste mobile */
-    .list{
-      margin-top: 10px;
+    .left{
       display:flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .item{
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 10px 12px;
-      display:flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      background: #fff;
-    }
-    .item-left{
-      display:flex;
-      flex-direction: column;
-      gap: 2px;
+      flex-direction:column;
+      gap:4px;
       min-width:0;
     }
-    .item-date{
-      font-weight: 900;
-      font-size: 14px;
+    .title{ font-weight:900; text-transform:capitalize; }
+    .meta{ font-size:13px; color:var(--muted); font-weight:800; }
+
+    .actions{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-shrink:0;
     }
-    .item-pres{
-      color: var(--muted);
-      font-weight: 800;
-      font-size: 13px;
-    }
-    .item-right{
+
+    /* Boutons icônes (plus légers) */
+    .icon-btn{
+      width:40px;
+      height:40px;
       display:flex;
       align-items:center;
-      gap: 10px;
-      flex-shrink: 0;
+      justify-content:center;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#f2f3f5;
+      cursor:pointer;
+    }
+    .icon-btn:active{ transform:scale(.95); }
+    .icon-btn span{ font-size:18px; }
+
+    .share-icon{
+      width:18px;
+      height:18px;
+      fill:#111;
+    }
+
+    /* Flèches (plus discrètes) */
+    .chev{
+      font-weight:900;
+      font-size:14px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:transparent;
+      border:1px solid rgba(0,0,0,.10);
+      color:#111;
+    }
+    details.block:not([open]) .chev::before { content:"▼"; }
+    details.block[open] .chev::before { content:"▲"; }
+
+    /* Listes d’entrées */
+    .list{
+      padding:10px 14px 14px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      border-top:1px solid var(--line);
+    }
+    .item{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px 12px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      background:#fff;
+    }
+    .item-date{ font-weight:900; }
+    .right{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-shrink:0;
     }
     .pill{
-      padding: 8px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--line);
+      padding:6px 10px;
+      border-radius:999px;
       background:#f7f8fa;
-      font-weight: 900;
-      min-width: 62px;
+      border:1px solid var(--line);
+      font-weight:900;
+      min-width:60px;
       text-align:center;
     }
     .del{
-      border: none;
-      background: transparent;
-      color: var(--danger);
-      font-size: 18px;
-      font-weight: 900;
-      cursor: pointer;
-      padding: 6px 8px;
-      border-radius: 10px;
-    }
-    .del:active{ background: rgba(214,40,40,.08); }
-
-    .empty{
-      color: var(--muted);
-      font-weight: 750;
-      font-size: 14px;
-      padding: 6px 2px;
+      border:none;
+      background:none;
+      color:var(--danger);
+      font-size:18px;
+      cursor:pointer;
+      font-weight:900;
     }
 
-    @media (max-width: 480px){
-      body{ padding: 10px; }
-      h1{ font-size: 20px; }
-      .row > *{ min-width: 100%; }
-      summary.month-summary{ padding: 12px; }
-      .month-body{ padding: 0 12px 12px; }
-      .mini-btn{ padding: 10px 10px; font-size: 13px; }
-      .pill{ min-width: 56px; }
+    .hint{ color:var(--muted); font-size:13px; margin-top:8px; font-weight:700; }
+
+    @media (max-width:480px){
+      body{ padding:10px; }
+      h1{ font-size:20px; }
+      .row > *{ min-width:100%; }
+      .icon-btn{ width:36px; height:36px; }
+      .icon-btn span{ font-size:17px; }
+      .share-icon{ width:16px; height:16px; }
     }
   </style>
 </head>
 
 <body>
-  <h1>Présences aux réunions</h1>
 
-  <div class="card">
-    <label for="date">Date de la réunion</label>
-    <input type="date" id="date" />
+<h1>Présences aux réunions</h1>
 
-    <label for="count">Nombre de présents</label>
-    <input type="number" id="count" min="0" inputmode="numeric" placeholder="Ex: 84" />
+<div class="card">
+  <label>Date de la réunion</label>
+  <input type="date" id="date">
 
-    <div class="row">
-      <div>
-        <label for="yearFilter">Filtrer par année (affichage + export)</label>
-        <select id="yearFilter"></select>
-        <div class="hint">Choisis une année ou “Toutes”.</div>
-      </div>
+  <label>Nombre de présents</label>
+  <input type="number" id="count" min="0" inputmode="numeric" placeholder="Ex: 84">
 
-      <div>
-        <label for="exportMonth">Mois à exporter (PDF)</label>
-        <select id="exportMonth"></select>
-        <div class="hint">“Tous les mois” exporte selon l’année filtrée.</div>
-      </div>
-    </div>
-
-    <div class="row">
-      <button class="btn btn-primary" id="addBtn">Ajouter</button>
-      <button class="btn btn-secondary" id="exportBtn">Exporter PDF</button>
-    </div>
-
-    <div class="hint">Astuce : après “Ajouter”, tu peux directement retaper un nombre (focus automatique).</div>
+  <div class="row">
+    <button class="btn btn-primary" id="addBtn">Ajouter</button>
   </div>
 
-  <div class="card" id="monthlyContainer"></div>
+  <div class="row">
+    <div>
+      <label>Période à exporter (PDF)</label>
+      <select id="exportPeriod"></select>
+      <div class="hint">Tu peux aussi exporter/partager un mois via les icônes dans la liste.</div>
+    </div>
+  </div>
 
-  <!-- jsPDF + AutoTable -->
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+  <div class="row">
+    <button class="btn btn-secondary" id="exportBtn">Exporter PDF</button>
+  </div>
+</div>
 
-  <script>
-    let data = JSON.parse(localStorage.getItem("presences")) || [];
+<div class="card" id="container"></div>
 
-    function formatDateFR(dateISO) {
-      const [y,m,d] = dateISO.split("-");
-      return `${d}/${m}/${y}`;
-    }
-    function monthKey(dateISO) { return dateISO.slice(0, 7); } // YYYY-MM
-    function yearKey(dateISO) { return dateISO.slice(0, 4); }  // YYYY
-    function getMonthLabelFromKey(keyYYYYMM) {
-      const [y, m] = keyYYYYMM.split("-");
-      const dt = new Date(`${y}-${m}-01T00:00:00`);
-      return dt.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
-    }
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
 
-    function getYearFilterValue() {
-      return document.getElementById("yearFilter").value || "ALL";
-    }
-    function getFilteredData() {
-      const y = getYearFilterValue();
-      if (y === "ALL") return data;
-      return data.filter(e => yearKey(e.date) === y);
-    }
+<script>
+  let data = JSON.parse(localStorage.getItem("presences")) || [];
 
-    function groupByMonth(entries) {
-      const groups = {};
-      entries.forEach(entry => {
-        const key = monthKey(entry.date);
-        if (!groups[key]) groups[key] = [];
-        groups[key].push(entry);
-      });
-      return groups;
-    }
+  const $date = document.getElementById("date");
+  const $count = document.getElementById("count");
+  const $container = document.getElementById("container");
+  const $exportPeriod = document.getElementById("exportPeriod");
 
-    function saveAndRender() {
-      localStorage.setItem("presences", JSON.stringify(data));
-      render();
-    }
+  function formatDateFR(dateISO){
+    const [y,m,d] = dateISO.split("-");
+    return `${d}/${m}/${y}`;
+  }
+  function yearKey(dateISO){ return dateISO.slice(0,4); }
+  function monthKey(dateISO){ return dateISO.slice(0,7); } // YYYY-MM
 
-    function addEntry() {
-      const date = document.getElementById("date").value;
-      const countEl = document.getElementById("count");
-      const count = countEl.value;
+  function monthLabel(yyyyMM){
+    return new Date(yyyyMM + "-01").toLocaleDateString("fr-FR", { month:"long", year:"numeric" });
+  }
 
-      if (!date || count === "") {
-        alert("Merci de remplir tous les champs.");
-        return;
-      }
+  function save(){
+    localStorage.setItem("presences", JSON.stringify(data));
+    render();
+  }
 
-      data.push({ date, count: Number(count) });
-      data.sort((a,b) => a.date.localeCompare(b.date));
+  function groupYearMonth(entries){
+    const out = {}; // {YYYY: {YYYY-MM: [entries]}}
+    entries.forEach(e=>{
+      const y = yearKey(e.date);
+      const m = monthKey(e.date);
+      if(!out[y]) out[y] = {};
+      if(!out[y][m]) out[y][m] = [];
+      out[y][m].push(e);
+    });
+    return out;
+  }
 
-      countEl.value = "";
-      saveAndRender();
-      countEl.focus();
-    }
+  function refreshExportPeriod(){
+    const years = [...new Set(data.map(e=>yearKey(e.date)))].sort();
+    const monthsAll = [...new Set(data.map(e=>monthKey(e.date)))].sort();
 
-    function deleteEntry(indexInAllData) {
-      data.splice(indexInAllData, 1);
-      saveAndRender();
-    }
+    const current = $exportPeriod.value || "ALL";
 
-    function refreshYearDropdown() {
-      const select = document.getElementById("yearFilter");
-      const current = select.value || "ALL";
-      const years = Array.from(new Set(data.map(e => yearKey(e.date)))).sort();
+    $exportPeriod.innerHTML = "";
 
-      select.innerHTML = "";
-      const optAll = document.createElement("option");
-      optAll.value = "ALL";
-      optAll.textContent = "Toutes les années";
-      select.appendChild(optAll);
+    // Tout
+    const optAll = document.createElement("option");
+    optAll.value = "ALL";
+    optAll.textContent = "Tout (toutes années)";
+    $exportPeriod.appendChild(optAll);
 
-      years.forEach(y => {
-        const opt = document.createElement("option");
-        opt.value = y;
-        opt.textContent = y;
-        select.appendChild(opt);
-      });
+    // Années
+    years.forEach(y=>{
+      const o = document.createElement("option");
+      o.value = `Y:${y}`;
+      o.textContent = `Année ${y}`;
+      $exportPeriod.appendChild(o);
 
-      if ([ "ALL", ...years ].includes(current)) select.value = current;
-      else select.value = years.length ? years[years.length - 1] : "ALL";
-
-      select.disabled = years.length === 0;
-    }
-
-    function refreshMonthDropdown(groups) {
-      const select = document.getElementById("exportMonth");
-      const currentValue = select.value || "ALL";
-      const keys = Object.keys(groups).sort((a,b) => a.localeCompare(b));
-
-      select.innerHTML = "";
-      const optAll = document.createElement("option");
-      optAll.value = "ALL";
-      optAll.textContent = "Tous les mois";
-      select.appendChild(optAll);
-
-      keys.forEach(k => {
-        const opt = document.createElement("option");
-        opt.value = k;
-        opt.textContent = getMonthLabelFromKey(k);
-        select.appendChild(opt);
-      });
-
-      if ([ "ALL", ...keys ].includes(currentValue)) select.value = currentValue;
-      else select.value = keys.length ? keys[keys.length - 1] : "ALL";
-
-      select.disabled = keys.length === 0;
-    }
-
-    function doExportPDF(keysToExport, groups, baseName) {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-
-      let y = 18;
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(16);
-
-      const title = (keysToExport.length === 1)
-        ? `Présences aux réunions (${getMonthLabelFromKey(keysToExport[0])})`
-        : "Présences aux réunions (par mois)";
-
-      doc.text(title, 14, y);
-      y += 10;
-
-      keysToExport.forEach((key, idx) => {
-        const entries = groups[key];
-        const total = entries.reduce((s,e)=>s+e.count,0);
-        const avg = (total / entries.length).toFixed(1);
-
-        doc.setFontSize(13);
-        doc.text(getMonthLabelFromKey(key), 14, y);
-        y += 4;
-
-        doc.setFontSize(11);
-        doc.text(`Réunions : ${entries.length} | Total : ${total} | Moyenne : ${avg}`, 14, y);
-        y += 4;
-
-        doc.autoTable({
-          startY: y,
-          head: [["Date", "Présents"]],
-          body: entries.map(e => [formatDateFR(e.date), String(e.count)]),
-          styles: { font: "helvetica", fontSize: 10 }
+      // Mois de cette année
+      monthsAll
+        .filter(m => m.startsWith(y + "-"))
+        .forEach(m=>{
+          const mo = document.createElement("option");
+          mo.value = `M:${m}`;
+          mo.textContent = `— ${monthLabel(m)}`;
+          $exportPeriod.appendChild(mo);
         });
+    });
 
-        y = doc.lastAutoTable.finalY + 10;
+    // Restore selection if possible
+    const validValues = new Set(Array.from($exportPeriod.options).map(o => o.value));
+    $exportPeriod.value = validValues.has(current) ? current : "ALL";
+  }
 
-        if (y > 270 && idx < keysToExport.length - 1) {
-          doc.addPage();
-          y = 18;
-        }
+  async function buildPdfBlob(monthKeysToExport){
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    const keys = [...monthKeysToExport].sort();
+
+    keys.forEach((k, idx)=>{
+      if(idx > 0) doc.addPage();
+      doc.setFontSize(14);
+      doc.text(`Présences – ${monthLabel(k)}`, 14, 16);
+
+      const entries = data.filter(e => monthKey(e.date) === k);
+      doc.autoTable({
+        startY: 24,
+        head: [["Date", "Présents"]],
+        body: entries.map(e => [formatDateFR(e.date), String(e.count)])
       });
+    });
 
-      const today = new Date().toISOString().slice(0,10);
-      doc.save(`${baseName}_${today}.pdf`);
+    return doc.output("blob");
+  }
+
+  function downloadBlob(blob, filename){
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function getMonthsForPeriod(periodValue){
+    const monthsAll = [...new Set(data.map(e=>monthKey(e.date)))].sort();
+
+    if(periodValue === "ALL") return monthsAll;
+
+    if(periodValue.startsWith("Y:")){
+      const y = periodValue.slice(2);
+      return monthsAll.filter(m => m.startsWith(y + "-"));
     }
 
-    function exportMonthPDF(keyYYYYMM) {
-      const filtered = getFilteredData();
-      const groups = groupByMonth(filtered);
-
-      if (!groups[keyYYYYMM]) {
-        alert("Aucune donnée pour ce mois (avec l’année filtrée).");
-        return;
-      }
-      doExportPDF([keyYYYYMM], groups, `presences_${keyYYYYMM}`);
+    if(periodValue.startsWith("M:")){
+      const m = periodValue.slice(2);
+      return monthsAll.includes(m) ? [m] : [];
     }
 
-    function exportPDF() {
-      if (!data.length) {
-        alert("Aucune donnée à exporter.");
-        return;
-      }
+    return [];
+  }
 
-      const selected = document.getElementById("exportMonth").value; // ALL ou YYYY-MM
-      const filtered = getFilteredData();
-      const groups = groupByMonth(filtered);
-      const keys = Object.keys(groups).sort((a,b)=>a.localeCompare(b));
+  async function exportSelected(){
+    if(!data.length){ alert("Aucune donnée à exporter."); return; }
 
-      if (!keys.length) {
-        alert("Aucune donnée pour l’année sélectionnée.");
-        return;
-      }
+    const period = $exportPeriod.value || "ALL";
+    const months = getMonthsForPeriod(period);
+    if(!months.length){ alert("Aucune donnée pour ce choix."); return; }
 
-      let keysToExport = [];
-      if (selected === "ALL") keysToExport = keys;
-      else {
-        if (!groups[selected]) {
-          alert("Ce mois n'a aucune donnée (avec l’année filtrée).");
-          return;
-        }
-        keysToExport = [selected];
-      }
+    const blob = await buildPdfBlob(months);
 
-      const y = getYearFilterValue();
-      const baseName =
-        (selected === "ALL")
-          ? (y === "ALL" ? "presences_tous_mois" : `presences_${y}_tous_mois`)
-          : (y === "ALL" ? `presences_${selected}` : `presences_${y}_${selected}`);
+    const today = new Date().toISOString().slice(0,10);
+    let name = `presences_${today}.pdf`;
 
-      doExportPDF(keysToExport, groups, baseName);
+    if(period === "ALL") name = `presences_tout_${today}.pdf`;
+    else if(period.startsWith("Y:")) name = `presences_${period.slice(2)}_${today}.pdf`;
+    else if(period.startsWith("M:")) name = `presences_${period.slice(2)}_${today}.pdf`;
+
+    downloadBlob(blob, name);
+  }
+
+  async function exportMonth(yyyyMM){
+    const blob = await buildPdfBlob([yyyyMM]);
+    const today = new Date().toISOString().slice(0,10);
+    downloadBlob(blob, `presences_${yyyyMM}_${today}.pdf`);
+  }
+
+  async function shareMonth(yyyyMM){
+    const blob = await buildPdfBlob([yyyyMM]);
+    const today = new Date().toISOString().slice(0,10);
+    const file = new File([blob], `presences_${yyyyMM}_${today}.pdf`, { type:"application/pdf" });
+
+    if(navigator.share && navigator.canShare && navigator.canShare({ files:[file] })){
+      try{
+        await navigator.share({
+          title: "Présences aux réunions",
+          text: `Présences – ${monthLabel(yyyyMM)}`,
+          files: [file]
+        });
+      }catch{}
+    }else{
+      downloadBlob(blob, `presences_${yyyyMM}_${today}.pdf`);
+      alert("Partage direct non supporté ici. PDF téléchargé : tu peux l’envoyer via WhatsApp/Mail.");
+    }
+  }
+
+  function openAndScrollTo(y, m){
+    const yearEl = document.querySelector(`details.block[data-year="${y}"]`);
+    const monthEl = document.querySelector(`details.block[data-month="${m}"]`);
+
+    if(yearEl) yearEl.open = true;
+    if(monthEl) monthEl.open = true;
+
+    const target = monthEl || yearEl;
+    if(target){
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+
+  function render(){
+    refreshExportPeriod();
+
+    $container.innerHTML = "";
+
+    const grouped = groupYearMonth(data);
+    const years = Object.keys(grouped).sort();
+
+    if(!years.length){
+      $container.innerHTML = `<div class="hint">Aucune donnée pour le moment.</div>`;
+      return;
     }
 
-    function toggleDetails(btn){
-      const details = btn.closest("details");
-      details.open = !details.open;
-    }
+    const currentYear = new Date().toISOString().slice(0,4);
 
-    function render() {
-      refreshYearDropdown();
+    years.forEach(y=>{
+      const months = Object.keys(grouped[y]).sort();
 
-      const container = document.getElementById("monthlyContainer");
-      container.innerHTML = "";
+      const yearMeetings = months.reduce((s,m)=>s + grouped[y][m].length, 0);
+      const yearTotal = months.reduce((s,m)=>s + grouped[y][m].reduce((a,e)=>a+e.count,0), 0);
+      const yearAvg = yearMeetings ? (yearTotal / yearMeetings).toFixed(1) : "0.0";
 
-      const filtered = getFilteredData();
-      const groups = groupByMonth(filtered);
-      refreshMonthDropdown(groups);
+      const yearDetails = document.createElement("details");
+      yearDetails.className = "block";
+      yearDetails.dataset.year = y;
+      if(y === currentYear) yearDetails.open = true;
 
-      const monthKeys = Object.keys(groups).sort((a,b)=>a.localeCompare(b));
-
-      if (!monthKeys.length) {
-        container.innerHTML = `<div class="empty">Aucune donnée (ou aucune donnée pour l’année sélectionnée).</div>`;
-        return;
-      }
-
-      const lastKey = monthKeys[monthKeys.length - 1];
-
-      monthKeys.forEach(key => {
-        const entries = groups[key];
+      const monthsHtml = months.map(m=>{
+        const entries = grouped[y][m];
         const total = entries.reduce((s,e)=>s+e.count,0);
-        const avg = (total / entries.length).toFixed(1);
+        const avg = (total/entries.length).toFixed(1);
 
-        const rows = entries.map(e => {
-          const idxInAll = data.indexOf(e);
+        const rows = entries.map(e=>{
+          const idx = data.indexOf(e);
           return `
             <div class="item">
-              <div class="item-left">
-                <div class="item-date">${formatDateFR(e.date)}</div>
-                <div class="item-pres">Présents</div>
-              </div>
-              <div class="item-right">
-                <div class="pill">${e.count}</div>
-                <button class="del" onclick="deleteEntry(${idxInAll})" aria-label="Supprimer">✖</button>
+              <div class="item-date">${formatDateFR(e.date)}</div>
+              <div class="right">
+                <span class="pill">${e.count}</span>
+                <button class="del" onclick="deleteEntry(${idx})" aria-label="Supprimer">✖</button>
               </div>
             </div>
           `;
         }).join("");
 
-        const details = document.createElement("details");
-        details.className = "month";
-        if (key === lastKey) details.open = true;
-
-        details.innerHTML = `
-          <summary class="month-summary">
-            <div class="month-left">
-              <div class="month-title">${getMonthLabelFromKey(key)}</div>
-              <div class="month-meta">Réunions : ${entries.length} • Total : ${total} • Moyenne : ${avg}</div>
-            </div>
-            <div class="month-actions">
-              <button class="mini-btn mini-secondary" type="button"
-                onclick="event.preventDefault(); exportMonthPDF('${key}')">Exporter</button>
-              <button class="mini-btn mini-ghost" type="button"
-                onclick="event.preventDefault(); toggleDetails(this)">Ouvrir/Fermer</button>
-            </div>
-          </summary>
-
-          <div class="month-body">
+        return `
+          <details class="block" data-month="${m}" style="margin:10px 14px 14px;">
+            <summary class="sum">
+              <div class="left">
+                <div class="title">${monthLabel(m)}</div>
+                <div class="meta">${entries.length} réunions • total ${total} • moy. ${avg}</div>
+              </div>
+              <div class="actions">
+                <div class="icon-btn" onclick="event.preventDefault(); exportMonth('${m}')" title="Exporter PDF">
+                  <span>📤</span>
+                </div>
+                <div class="icon-btn" onclick="event.preventDefault(); shareMonth('${m}')" title="Partager">
+                  <svg class="share-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="18" cy="5" r="3"></circle>
+                    <circle cx="6" cy="12" r="3"></circle>
+                    <circle cx="18" cy="19" r="3"></circle>
+                    <line x1="8.6" y1="10.9" x2="15.4" y2="6.1" stroke="#111" stroke-width="2"></line>
+                    <line x1="8.6" y1="13.1" x2="15.4" y2="17.9" stroke="#111" stroke-width="2"></line>
+                  </svg>
+                </div>
+                <span class="chev" aria-hidden="true"></span>
+              </div>
+            </summary>
             <div class="list">
-              ${rows || `<div class="empty">Aucune réunion ce mois.</div>`}
+              ${rows || `<div class="hint">Aucune réunion.</div>`}
             </div>
-          </div>
+          </details>
         `;
+      }).join("");
 
-        container.appendChild(details);
-      });
+      yearDetails.innerHTML = `
+        <summary class="sum">
+          <div class="left">
+            <div class="title">${y}</div>
+            <div class="meta">${yearMeetings} réunions • total ${yearTotal} • moy. ${yearAvg}</div>
+          </div>
+          <div class="actions">
+            <span class="chev" aria-hidden="true"></span>
+          </div>
+        </summary>
+        <div style="padding-bottom: 6px;">
+          ${monthsHtml}
+        </div>
+      `;
+
+      $container.appendChild(yearDetails);
+    });
+  }
+
+  // Expose deleteEntry for inline onclick
+  window.deleteEntry = deleteEntry;
+
+  function deleteEntry(index){
+    data.splice(index, 1);
+    save();
+  }
+
+  function addEntry(){
+    if(!$date.value || $count.value === ""){
+      alert("Champs manquants");
+      return;
     }
 
-    function init() {
-      // Date par défaut = aujourd'hui
-      document.getElementById("date").value = new Date().toISOString().slice(0,10);
+    const d = $date.value;
+    const y = yearKey(d);
+    const m = monthKey(d);
 
-      document.getElementById("addBtn").addEventListener("click", addEntry);
-      document.getElementById("exportBtn").addEventListener("click", exportPDF);
-      document.getElementById("yearFilter").addEventListener("change", render);
+    data.push({ date: d, count: Number($count.value) });
+    data.sort((a,b)=>a.date.localeCompare(b.date));
 
-      document.getElementById("count").addEventListener("keydown", (e) => {
-        if (e.key === "Enter") addEntry();
-      });
+    $count.value = "";
+    localStorage.setItem("presences", JSON.stringify(data));
+    render();
 
-      render();
-      document.getElementById("count").focus();
-    }
+    // ✅ auto-open + scroll
+    setTimeout(() => openAndScrollTo(y, m), 50);
 
-    init();
-  </script>
+    $count.focus();
+  }
 
-  <!-- ✅ PWA : service worker -->
-  <script>
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("./sw.js");
-    }
-  </script>
+  // events
+  document.getElementById("addBtn").addEventListener("click", addEntry);
+  document.getElementById("exportBtn").addEventListener("click", exportSelected);
+  $count.addEventListener("keydown", (e)=>{ if(e.key === "Enter") addEntry(); });
+
+  // default date
+  $date.value = new Date().toISOString().slice(0,10);
+
+  render();
+</script>
+
+<!-- PWA service worker -->
+<script>
+  if("serviceWorker" in navigator){
+    navigator.serviceWorker.register("./sw.js");
+  }
+</script>
+
 </body>
 </html>

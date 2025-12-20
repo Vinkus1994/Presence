@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -109,7 +110,7 @@
       min-width:0;
     }
     .title{ font-weight:900; text-transform:capitalize; }
-    .meta{ font-size:13px; color:var(--muted); font-weight:800; }
+    .meta{ font-size:13px; color:var(--muted); font-weight:800; line-height:1.25; }
 
     .actions{
       display:flex;
@@ -157,6 +158,7 @@
       gap:8px;
       border-top:1px solid var(--line);
     }
+
     .item{
       border:1px solid var(--line);
       border-radius:14px;
@@ -167,22 +169,32 @@
       gap:10px;
       background:#fff;
     }
+
     .item-date{ font-weight:900; }
+    .subline{ color:var(--muted); font-weight:800; font-size:12.5px; margin-top:2px; }
+
     .right{
       display:flex;
       align-items:center;
-      gap:10px;
+      gap:8px;
       flex-shrink:0;
     }
+
+    /* ✅ Pills distinguées */
     .pill{
       padding:6px 10px;
       border-radius:999px;
-      background:#f7f8fa;
       border:1px solid var(--line);
       font-weight:900;
-      min-width:60px;
+      min-width:72px;
       text-align:center;
+      font-size:13px;
+      background:#f7f8fa;
     }
+    .pill-salle{ background:#eef6ff; }
+    .pill-zoom{ background:#f5efff; }
+    .pill-total{ background:#eefaf1; }
+
     .del{
       border:none;
       background:none;
@@ -190,7 +202,10 @@
       font-size:18px;
       cursor:pointer;
       font-weight:900;
+      padding:6px 8px;
+      border-radius:10px;
     }
+    .del:active{ background:rgba(214,40,40,.08); }
 
     .hint{ color:var(--muted); font-size:13px; margin-top:8px; font-weight:700; }
     .topline{
@@ -229,6 +244,8 @@
       .icon-btn span{ font-size:17px; }
       .share-icon{ width:16px; height:16px; }
       .pick-btn{ min-width:100%; }
+      .pill{ min-width:68px; padding:6px 8px; }
+      .right{ gap:6px; }
     }
   </style>
 </head>
@@ -260,8 +277,16 @@
     <label>Date de la réunion</label>
     <input type="date" id="date">
 
-    <label>Nombre de présents</label>
-    <input type="number" id="count" min="0" inputmode="numeric" placeholder="Ex: 84">
+    <div class="row">
+      <div>
+        <label>Présents à la Salle</label>
+        <input type="number" id="countSalle" min="0" inputmode="numeric" placeholder="Ex: 84">
+      </div>
+      <div>
+        <label>Présents par Zoom</label>
+        <input type="number" id="countZoom" min="0" inputmode="numeric" placeholder="Ex: 12">
+      </div>
+    </div>
 
     <div class="row">
       <button class="btn btn-primary" id="addBtn">Ajouter</button>
@@ -287,50 +312,54 @@
 <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
 
 <script>
-  // ====== Config groupes ======
-  const GROUPS = {
-    FR: "Ixelles FR",
-    ROM: "Ixelles ROM"
-  };
+  const GROUPS = { FR: "Ixelles FR", ROM: "Ixelles ROM" };
 
-  // Données stockées séparément par groupe (dans localStorage)
   function storageKey(group){ return `presences_${group}`; }
 
   function loadData(group){
-    return JSON.parse(localStorage.getItem(storageKey(group)) || "[]");
+    const raw = JSON.parse(localStorage.getItem(storageKey(group)) || "[]");
+    // migration: {date, count} -> {date, salle:count, zoom:0}
+    return raw.map(e => {
+      if (typeof e.salle === "number" && typeof e.zoom === "number") return e;
+      const legacyCount = Number(e.count ?? 0);
+      return { date: e.date, salle: legacyCount, zoom: 0 };
+    }).filter(e => e && typeof e.date === "string");
   }
+
   function saveData(group, arr){
     localStorage.setItem(storageKey(group), JSON.stringify(arr));
   }
 
-  // Groupe actif
   let activeGroup = localStorage.getItem("active_group") || "";
   let data = [];
 
-  // ====== DOM ======
   const $pickScreen = document.getElementById("pickScreen");
   const $appScreen  = document.getElementById("appScreen");
   const $groupBadge = document.getElementById("groupBadge");
 
   const $date = document.getElementById("date");
-  const $count = document.getElementById("count");
-  const $container = document.getElementById("container");
+  const $countSalle = document.getElementById("countSalle");
+  const $countZoom  = document.getElementById("countZoom");
+  const $container  = document.getElementById("container");
   const $exportPeriod = document.getElementById("exportPeriod");
 
-  // ===== Helpers =====
   function formatDateFR(dateISO){
     const [y,m,d] = dateISO.split("-");
     return `${d}/${m}/${y}`;
   }
   function yearKey(dateISO){ return dateISO.slice(0,4); }
-  function monthKey(dateISO){ return dateISO.slice(0,7); } // YYYY-MM
+  function monthKey(dateISO){ return dateISO.slice(0,7); }
 
   function monthLabel(yyyyMM){
     return new Date(yyyyMM + "-01").toLocaleDateString("fr-FR", { month:"long", year:"numeric" });
   }
 
+  function entrySalle(e){ return Number(e.salle || 0); }
+  function entryZoom(e){ return Number(e.zoom || 0); }
+  function entryTotal(e){ return entrySalle(e) + entryZoom(e); }
+
   function groupYearMonth(entries){
-    const out = {}; // {YYYY: {YYYY-MM: [entries]}}
+    const out = {};
     entries.forEach(e=>{
       const y = yearKey(e.date);
       const m = monthKey(e.date);
@@ -353,8 +382,8 @@
   function refreshExportPeriod(){
     const years = [...new Set(data.map(e=>yearKey(e.date)))].sort();
     const monthsAll = [...new Set(data.map(e=>monthKey(e.date)))].sort();
-
     const current = $exportPeriod.value || "ALL";
+
     $exportPeriod.innerHTML = "";
 
     const optAll = document.createElement("option");
@@ -382,7 +411,6 @@
 
   function getMonthsForPeriod(periodValue){
     const monthsAll = [...new Set(data.map(e=>monthKey(e.date)))].sort();
-
     if(periodValue === "ALL") return monthsAll;
     if(periodValue.startsWith("Y:")){
       const y = periodValue.slice(2);
@@ -395,6 +423,8 @@
     return [];
   }
 
+  function round1(x){ return (Math.round(x*10)/10).toFixed(1); }
+
   async function buildPdfBlob(monthKeysToExport){
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
@@ -402,14 +432,38 @@
 
     keys.forEach((k, idx)=>{
       if(idx > 0) doc.addPage();
+
+      const entries = data.filter(e => monthKey(e.date) === k);
+      const n = entries.length;
+
+      const totalSalle = entries.reduce((s,e)=>s + entrySalle(e), 0);
+      const totalZoom  = entries.reduce((s,e)=>s + entryZoom(e), 0);
+      const totalAll   = totalSalle + totalZoom;
+
+      const avgSalle = n ? totalSalle / n : 0;
+      const avgZoom  = n ? totalZoom / n : 0;
+      const avgAll   = n ? totalAll / n : 0;
+
       doc.setFontSize(14);
       doc.text(`${GROUPS[activeGroup]} — ${monthLabel(k)}`, 14, 16);
 
-      const entries = data.filter(e => monthKey(e.date) === k);
+      doc.setFontSize(11);
+      doc.text(`Réunions : ${n}`, 14, 24);
+
+      doc.setFontSize(10);
+      doc.text(`Salle : total ${totalSalle} • moyenne ${round1(avgSalle)}`, 14, 30);
+      doc.text(`Zoom  : total ${totalZoom} • moyenne ${round1(avgZoom)}`, 14, 35);
+      doc.text(`TOTAL : total ${totalAll} • moyenne ${round1(avgAll)}`, 14, 40);
+
       doc.autoTable({
-        startY: 24,
-        head: [["Date", "Présents"]],
-        body: entries.map(e => [formatDateFR(e.date), String(e.count)])
+        startY: 46,
+        head: [["Date", "Salle", "Zoom", "Total"]],
+        body: entries.map(e => [
+          formatDateFR(e.date),
+          String(entrySalle(e)),
+          String(entryZoom(e)),
+          String(entryTotal(e))
+        ])
       });
     });
 
@@ -470,7 +524,6 @@
     }
   }
 
-  // Expose for inline onclick
   window.deleteEntry = function(index){
     data.splice(index, 1);
     saveData(activeGroup, data);
@@ -478,8 +531,19 @@
   };
 
   function addEntry(){
-    if(!$date.value || $count.value === ""){
-      alert("Champs manquants");
+    if(!$date.value){
+      alert("Date manquante");
+      return;
+    }
+    const salleVal = ($countSalle.value === "") ? 0 : Number($countSalle.value);
+    const zoomVal  = ($countZoom.value  === "") ? 0 : Number($countZoom.value);
+
+    if(salleVal < 0 || zoomVal < 0 || !Number.isFinite(salleVal) || !Number.isFinite(zoomVal)){
+      alert("Valeurs invalides");
+      return;
+    }
+    if(salleVal === 0 && zoomVal === 0){
+      alert("Ajoute au moins Salle ou Zoom.");
       return;
     }
 
@@ -487,15 +551,16 @@
     const y = yearKey(d);
     const m = monthKey(d);
 
-    data.push({ date: d, count: Number($count.value) });
+    data.push({ date: d, salle: salleVal, zoom: zoomVal });
     data.sort((a,b)=>a.date.localeCompare(b.date));
 
-    $count.value = "";
+    $countSalle.value = "";
+    $countZoom.value  = "";
     saveData(activeGroup, data);
     render();
 
     setTimeout(()=>openAndScrollTo(y,m), 50);
-    $count.focus();
+    $countSalle.focus();
   }
 
   function render(){
@@ -517,8 +582,13 @@
       const months = Object.keys(grouped[y]).sort();
 
       const yearMeetings = months.reduce((s,m)=>s + grouped[y][m].length, 0);
-      const yearTotal = months.reduce((s,m)=>s + grouped[y][m].reduce((a,e)=>a+e.count,0), 0);
-      const yearAvg = yearMeetings ? (yearTotal / yearMeetings).toFixed(1) : "0.0";
+      const yearSalle = months.reduce((s,m)=>s + grouped[y][m].reduce((a,e)=>a+entrySalle(e),0), 0);
+      const yearZoom  = months.reduce((s,m)=>s + grouped[y][m].reduce((a,e)=>a+entryZoom(e),0), 0);
+      const yearTotal = yearSalle + yearZoom;
+
+      const yearAvgSalle = yearMeetings ? yearSalle / yearMeetings : 0;
+      const yearAvgZoom  = yearMeetings ? yearZoom / yearMeetings : 0;
+      const yearAvgTotal = yearMeetings ? yearTotal / yearMeetings : 0;
 
       const yearDetails = document.createElement("details");
       yearDetails.className = "block";
@@ -527,16 +597,32 @@
 
       const monthsHtml = months.map(m=>{
         const entries = grouped[y][m];
-        const total = entries.reduce((s,e)=>s+e.count,0);
-        const avg = (total/entries.length).toFixed(1);
+        const n = entries.length;
+
+        const salle = entries.reduce((s,e)=>s + entrySalle(e), 0);
+        const zoom  = entries.reduce((s,e)=>s + entryZoom(e), 0);
+        const total = salle + zoom;
+
+        const avgSalle = n ? salle/n : 0;
+        const avgZoom  = n ? zoom/n : 0;
+        const avgTotal = n ? total/n : 0;
 
         const rows = entries.map(e=>{
           const idx = data.indexOf(e);
+          const s = entrySalle(e);
+          const z = entryZoom(e);
+          const t = s+z;
+
           return `
             <div class="item">
-              <div class="item-date">${formatDateFR(e.date)}</div>
+              <div>
+                <div class="item-date">${formatDateFR(e.date)}</div>
+                <div class="subline">Salle / Zoom / Total</div>
+              </div>
               <div class="right">
-                <span class="pill">${e.count}</span>
+                <span class="pill pill-salle">Salle ${s}</span>
+                <span class="pill pill-zoom">Zoom ${z}</span>
+                <span class="pill pill-total">Total ${t}</span>
                 <button class="del" onclick="deleteEntry(${idx})" aria-label="Supprimer">✖</button>
               </div>
             </div>
@@ -548,7 +634,12 @@
             <summary class="sum">
               <div class="left">
                 <div class="title">${monthLabel(m)}</div>
-                <div class="meta">${entries.length} réunions • total ${total} • moy. ${avg}</div>
+                <div class="meta">
+                  ${n} réunions •
+                  Salle ${salle} (moy ${round1(avgSalle)}) •
+                  Zoom ${zoom} (moy ${round1(avgZoom)}) •
+                  Total ${total} (moy ${round1(avgTotal)})
+                </div>
               </div>
               <div class="actions">
                 <div class="icon-btn" onclick="event.preventDefault(); exportMonth('${m}')" title="Exporter PDF">
@@ -577,7 +668,12 @@
         <summary class="sum">
           <div class="left">
             <div class="title">${y}</div>
-            <div class="meta">${yearMeetings} réunions • total ${yearTotal} • moy. ${yearAvg}</div>
+            <div class="meta">
+              ${yearMeetings} réunions •
+              Salle ${yearSalle} (moy ${round1(yearAvgSalle)}) •
+              Zoom ${yearZoom} (moy ${round1(yearAvgZoom)}) •
+              Total ${yearTotal} (moy ${round1(yearAvgTotal)})
+            </div>
           </div>
           <div class="actions">
             <span class="chev" aria-hidden="true"></span>
@@ -587,7 +683,6 @@
           ${monthsHtml}
         </div>
       `;
-
       $container.appendChild(yearDetails);
     });
   }
@@ -596,41 +691,34 @@
     $appScreen.style.display = "none";
     $pickScreen.style.display = "flex";
   }
-
   function showApp(){
     $pickScreen.style.display = "none";
     $appScreen.style.display = "block";
     data = loadData(activeGroup);
     render();
   }
-
   function setGroup(g){
     activeGroup = g;
     localStorage.setItem("active_group", g);
     showApp();
   }
 
-  // events
   document.getElementById("pickFR").addEventListener("click", ()=>setGroup("FR"));
   document.getElementById("pickROM").addEventListener("click", ()=>setGroup("ROM"));
-  document.getElementById("changeGroupBtn").addEventListener("click", ()=>{
-    // retour à l’écran de choix
-    showPick();
-  });
+  document.getElementById("changeGroupBtn").addEventListener("click", showPick);
 
   document.getElementById("addBtn").addEventListener("click", addEntry);
   document.getElementById("exportBtn").addEventListener("click", exportSelected);
-  $count.addEventListener("keydown", (e)=>{ if(e.key === "Enter") addEntry(); });
 
-  // default date
+  $countSalle.addEventListener("keydown", (e)=>{ if(e.key === "Enter") $countZoom.focus(); });
+  $countZoom.addEventListener("keydown", (e)=>{ if(e.key === "Enter") addEntry(); });
+
   $date.value = new Date().toISOString().slice(0,10);
 
-  // boot
   if(!activeGroup || !GROUPS[activeGroup]) showPick();
   else showApp();
 </script>
 
-<!-- PWA service worker -->
 <script>
   if("serviceWorker" in navigator){
     navigator.serviceWorker.register("./sw.js");

@@ -1,4 +1,4 @@
-const CACHE_NAME = "presences-v11"; // ✅ change le numéro à chaque grosse maj
+const CACHE_NAME = "presences-v15"; // ✅ change le numéro à chaque grosse maj
 const ASSETS = [
   "./",
   "./index.html",
@@ -40,4 +40,5 @@ self.addEventListener("fetch", (event) => {
     })()
   );
 });
+
 

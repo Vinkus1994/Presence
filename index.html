@@ -22,7 +22,853 @@
       margin:0; padding:14px; max-width:920px; margin-inline:auto;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       background:var(--bg); color:var(--ink);
+    }<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- PWA -->
+  <meta name="theme-color" content="#007bff">
+  <link rel="manifest" href="manifest.json">
+
+  <title>Présences aux réunions</title>
+
+  <style>
+    :root{
+      --bg:#f4f6f8; --card:#fff; --ink:#111; --muted:#6c757d; --line:#e6e6e6;
+      --primary:#007bff; --secondary:#6c757d; --danger:#d62828;
+      --shadow: 0 2px 10px rgba(0,0,0,.08); --radius:14px;
     }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0; padding:14px; max-width:920px; margin-inline:auto;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:var(--bg); color:var(--ink);
+    }
+    h1{ margin:8px 0 14px; text-align:center; font-size:22px; }
+
+    .card{
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:14px;
+      margin-bottom:14px;
+    }
+
+    /* Choix groupe */
+    .center{
+      min-height: calc(100vh - 40px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .pick-wrap{ width:100%; max-width:520px; }
+    .pick-title{ text-align:center; font-weight:900; font-size:20px; margin-bottom:10px; }
+    .pick-sub{ text-align:center; color:var(--muted); font-weight:700; margin-bottom:14px; }
+    .pick-row{ display:flex; gap:10px; flex-wrap:wrap; }
+    .pick-btn{
+      flex:1;
+      min-width:240px;
+      padding:18px 14px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background:#fff;
+      font-size:18px;
+      font-weight:900;
+      cursor:pointer;
+      box-shadow: var(--shadow);
+    }
+    .pick-btn:active{ transform:scale(.99); opacity:.95; }
+
+    label{ display:block; margin-top:10px; font-weight:800; font-size:14px; }
+    input, select{
+      width:100%;
+      padding:12px;
+      margin-top:8px;
+      font-size:16px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#fff;
+      outline:none;
+    }
+
+    .row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+    .row > *{ flex:1; min-width:220px; }
+
+    .btn{
+      border:none;
+      cursor:pointer;
+      font-weight:900;
+      padding:14px;
+      border-radius:14px;
+      width:100%;
+    }
+    .btn-primary{ background:var(--primary); color:#fff; }
+    .btn-secondary{ background:var(--secondary); color:#fff; }
+
+    details.block{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:14px;
+      margin-top:10px;
+      overflow:hidden;
+    }
+    summary.sum{
+      list-style:none;
+      cursor:pointer;
+      padding:14px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      user-select:none;
+    }
+    summary.sum::-webkit-details-marker{ display:none; }
+
+    .left{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      min-width:0;
+    }
+    .title{ font-weight:900; text-transform:capitalize; }
+    .meta{ font-size:13px; color:var(--muted); font-weight:800; line-height:1.25; }
+
+    .actions{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-shrink:0;
+    }
+
+    .icon-btn{
+      width:40px;
+      height:40px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#f2f3f5;
+      cursor:pointer;
+    }
+    .icon-btn:active{ transform:scale(.95); }
+    .icon-btn span{ font-size:18px; }
+
+    .share-icon{
+      width:18px;
+      height:18px;
+      fill:#111;
+    }
+
+    .chev{
+      font-weight:900;
+      font-size:14px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:transparent;
+      border:1px solid rgba(0,0,0,.10);
+      color:#111;
+    }
+    details.block:not([open]) .chev::before { content:"▼"; }
+    details.block[open] .chev::before { content:"▲"; }
+
+    .list{
+      padding:10px 14px 14px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      border-top:1px solid var(--line);
+    }
+
+    .item{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px 12px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      background:#fff;
+    }
+
+    .item-date{ font-weight:900; }
+    .subline{ color:var(--muted); font-weight:800; font-size:12.5px; margin-top:2px; }
+
+    .right{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-shrink:0;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    /* Pills distinguées */
+    .pill{
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      font-weight:900;
+      min-width:72px;
+      text-align:center;
+      font-size:13px;
+      background:#f7f8fa;
+      white-space:nowrap;
+    }
+    .pill-salle{ background:#eef6ff; }
+    .pill-zoom{ background:#f5efff; }
+    .pill-total{ background:#eefaf1; }
+
+    .del{
+      border:none;
+      background:none;
+      color:var(--danger);
+      font-size:18px;
+      cursor:pointer;
+      font-weight:900;
+      padding:6px 8px;
+      border-radius:10px;
+    }
+    .del:active{ background:rgba(214,40,40,.08); }
+
+    .hint{ color:var(--muted); font-size:13px; margin-top:8px; font-weight:700; }
+    .topline{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-weight:900;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#f7f8fa;
+    }
+    .link-btn{
+      border:none;
+      background:transparent;
+      color:var(--muted);
+      font-weight:900;
+      cursor:pointer;
+      padding:8px 10px;
+      border-radius:10px;
+    }
+    .link-btn:active{ background:rgba(0,0,0,.05); }
+
+    /* Sauvegarde locale : boutons compacts */
+    .mini-actions{
+      display:flex;
+      gap:10px;
+      margin-top:10px;
+      flex-wrap:wrap;
+    }
+    .mini{
+      flex:1;
+      min-width:180px;
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:14px;
+      padding:12px;
+      cursor:pointer;
+      font-weight:900;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+    }
+    .mini:active{ transform:scale(.99); opacity:.95; }
+    .mini .ico{ font-size:18px; }
+
+    @media (max-width:480px){
+      body{ padding:10px; }
+      h1{ font-size:20px; }
+      .row > *{ min-width:100%; }
+      .icon-btn{ width:36px; height:36px; }
+      .icon-btn span{ font-size:17px; }
+      .share-icon{ width:16px; height:16px; }
+      .pick-btn{ min-width:100%; }
+      .pill{ min-width:68px; padding:6px 8px; }
+      .right{ gap:6px; }
+      .mini{ min-width:100%; }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ÉCRAN CHOIX GROUPE -->
+<div id="pickScreen" class="center" style="display:none;">
+  <div class="pick-wrap">
+    <div class="pick-title">Choisis le groupe</div>
+    <div class="pick-sub">Ce choix reste enregistré sur ce téléphone.</div>
+    <div class="pick-row">
+      <button class="pick-btn" id="pickFR">Ixelles FR</button>
+      <button class="pick-btn" id="pickROM">Ixelles ROM</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appScreen" style="display:none;">
+  <h1>Présences aux réunions</h1>
+
+  <div class="card">
+    <div class="topline">
+      <div class="badge" id="groupBadge">Groupe</div>
+      <button class="link-btn" id="changeGroupBtn" title="Changer de groupe">Changer</button>
+    </div>
+
+    <label>Date de la réunion</label>
+    <input type="date" id="date">
+
+    <div class="row">
+      <div>
+        <label>Présents à la Salle</label>
+        <input type="number" id="countSalle" min="0" inputmode="numeric" placeholder="Ex: 84">
+      </div>
+      <div>
+        <label>Présents par Zoom</label>
+        <input type="number" id="countZoom" min="0" inputmode="numeric" placeholder="Ex: 12">
+      </div>
+    </div>
+
+    <div class="row">
+      <button class="btn btn-primary" id="addBtn">Ajouter</button>
+    </div>
+
+    <div class="row">
+      <div>
+        <label>Période à exporter (PDF)</label>
+        <select id="exportPeriod"></select>
+        <div class="hint">Export global = seulement pour ce groupe.</div>
+      </div>
+    </div>
+
+    <div class="row">
+      <button class="btn btn-secondary" id="exportBtn">Exporter PDF</button>
+    </div>
+
+    <!-- ✅ Sauvegarde locale -->
+    <div class="mini-actions">
+      <button class="mini" id="backupBtn" title="Sauvegarder toutes les données (FR + ROM) en fichier">
+        <span class="ico">💾</span> Sauvegarde (fichier)
+      </button>
+      <button class="mini" id="restoreBtn" title="Restaurer depuis un fichier de sauvegarde">
+        <span class="ico">📥</span> Restaurer (fichier)
+      </button>
+      <input type="file" id="restoreFile" accept="application/json" style="display:none;">
+    </div>
+    <div class="hint">Conseil : fais une sauvegarde 1×/mois (ou avant de toucher au cache).</div>
+  </div>
+
+  <div class="card" id="container"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+
+<script>
+  const GROUPS = { FR: "Ixelles FR", ROM: "Ixelles ROM" };
+  const APP_BACKUP_VERSION = 3; // incrément si structure change
+
+  function storageKey(group){ return `presences_${group}`; }
+
+  function normalizeEntries(raw){
+    // migration: {date, count} -> {date, salle:count, zoom:0}
+    return (raw || []).map(e => {
+      if (!e || typeof e.date !== "string") return null;
+      if (typeof e.salle === "number" && typeof e.zoom === "number") return e;
+      const legacyCount = Number(e.count ?? 0);
+      return { date: e.date, salle: legacyCount, zoom: 0 };
+    }).filter(Boolean);
+  }
+
+  function loadData(group){
+    const raw = JSON.parse(localStorage.getItem(storageKey(group)) || "[]");
+    return normalizeEntries(raw);
+  }
+
+  function saveData(group, arr){
+    localStorage.setItem(storageKey(group), JSON.stringify(normalizeEntries(arr)));
+  }
+
+  let activeGroup = localStorage.getItem("active_group") || "";
+  let data = [];
+
+  const $pickScreen = document.getElementById("pickScreen");
+  const $appScreen  = document.getElementById("appScreen");
+  const $groupBadge = document.getElementById("groupBadge");
+
+  const $date = document.getElementById("date");
+  const $countSalle = document.getElementById("countSalle");
+  const $countZoom  = document.getElementById("countZoom");
+  const $container  = document.getElementById("container");
+  const $exportPeriod = document.getElementById("exportPeriod");
+
+  const $backupBtn = document.getElementById("backupBtn");
+  const $restoreBtn = document.getElementById("restoreBtn");
+  const $restoreFile = document.getElementById("restoreFile");
+
+  function formatDateFR(dateISO){
+    const [y,m,d] = dateISO.split("-");
+    return `${d}/${m}/${y}`;
+  }
+  function yearKey(dateISO){ return dateISO.slice(0,4); }
+  function monthKey(dateISO){ return dateISO.slice(0,7); }
+  function monthLabel(yyyyMM){
+    return new Date(yyyyMM + "-01").toLocaleDateString("fr-FR", { month:"long", year:"numeric" });
+  }
+
+  function entrySalle(e){ return Number(e.salle || 0); }
+  function entryZoom(e){ return Number(e.zoom || 0); }
+  function entryTotal(e){ return entrySalle(e) + entryZoom(e); }
+
+  function groupYearMonth(entries){
+    const out = {};
+    entries.forEach(e=>{
+      const y = yearKey(e.date);
+      const m = monthKey(e.date);
+      if(!out[y]) out[y] = {};
+      if(!out[y][m]) out[y][m] = [];
+      out[y][m].push(e);
+    });
+    return out;
+  }
+
+  function openAndScrollTo(y, m){
+    const yearEl = document.querySelector(`details.block[data-year="${y}"]`);
+    const monthEl = document.querySelector(`details.block[data-month="${m}"]`);
+    if(yearEl) yearEl.open = true;
+    if(monthEl) monthEl.open = true;
+    const target = monthEl || yearEl;
+    if(target) target.scrollIntoView({ behavior:"smooth", block:"start" });
+  }
+
+  function refreshExportPeriod(){
+    const years = [...new Set(data.map(e=>yearKey(e.date)))].sort();
+    const monthsAll = [...new Set(data.map(e=>monthKey(e.date)))].sort();
+    const current = $exportPeriod.value || "ALL";
+
+    $exportPeriod.innerHTML = "";
+
+    const optAll = document.createElement("option");
+    optAll.value = "ALL";
+    optAll.textContent = "Tout (toutes années)";
+    $exportPeriod.appendChild(optAll);
+
+    years.forEach(y=>{
+      const o = document.createElement("option");
+      o.value = `Y:${y}`;
+      o.textContent = `Année ${y}`;
+      $exportPeriod.appendChild(o);
+
+      monthsAll.filter(m => m.startsWith(y + "-")).forEach(m=>{
+        const mo = document.createElement("option");
+        mo.value = `M:${m}`;
+        mo.textContent = `— ${monthLabel(m)}`;
+        $exportPeriod.appendChild(mo);
+      });
+    });
+
+    const valid = new Set(Array.from($exportPeriod.options).map(o => o.value));
+    $exportPeriod.value = valid.has(current) ? current : "ALL";
+  }
+
+  function getMonthsForPeriod(periodValue){
+    const monthsAll = [...new Set(data.map(e=>monthKey(e.date)))].sort();
+    if(periodValue === "ALL") return monthsAll;
+    if(periodValue.startsWith("Y:")){
+      const y = periodValue.slice(2);
+      return monthsAll.filter(m => m.startsWith(y + "-"));
+    }
+    if(periodValue.startsWith("M:")){
+      const m = periodValue.slice(2);
+      return monthsAll.includes(m) ? [m] : [];
+    }
+    return [];
+  }
+
+  function round1(x){ return (Math.round(x*10)/10).toFixed(1); }
+
+  async function buildPdfBlob(monthKeysToExport){
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const keys = [...monthKeysToExport].sort();
+
+    keys.forEach((k, idx)=>{
+      if(idx > 0) doc.addPage();
+
+      const entries = data.filter(e => monthKey(e.date) === k);
+      const n = entries.length;
+
+      const totalSalle = entries.reduce((s,e)=>s + entrySalle(e), 0);
+      const totalZoom  = entries.reduce((s,e)=>s + entryZoom(e), 0);
+      const totalAll   = totalSalle + totalZoom;
+
+      const avgSalle = n ? totalSalle / n : 0;
+      const avgZoom  = n ? totalZoom / n : 0;
+      const avgAll   = n ? totalAll / n : 0;
+
+      doc.setFontSize(14);
+      doc.text(`${GROUPS[activeGroup]} — ${monthLabel(k)}`, 14, 16);
+
+      doc.setFontSize(11);
+      doc.text(`Réunions : ${n}`, 14, 24);
+
+      doc.setFontSize(10);
+      doc.text(`Salle : total ${totalSalle} • moyenne ${round1(avgSalle)}`, 14, 30);
+      doc.text(`Zoom  : total ${totalZoom} • moyenne ${round1(avgZoom)}`, 14, 35);
+      doc.text(`TOTAL : total ${totalAll} • moyenne ${round1(avgAll)}`, 14, 40);
+
+      doc.autoTable({
+        startY: 46,
+        head: [["Date", "Salle", "Zoom", "Total"]],
+        body: entries.map(e => [
+          formatDateFR(e.date),
+          String(entrySalle(e)),
+          String(entryZoom(e)),
+          String(entryTotal(e))
+        ])
+      });
+    });
+
+    return doc.output("blob");
+  }
+
+  function downloadBlob(blob, filename){
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  async function exportSelected(){
+    if(!data.length){ alert("Aucune donnée à exporter."); return; }
+    const period = $exportPeriod.value || "ALL";
+    const months = getMonthsForPeriod(period);
+    if(!months.length){ alert("Aucune donnée pour ce choix."); return; }
+
+    const blob = await buildPdfBlob(months);
+
+    const today = new Date().toISOString().slice(0,10);
+    let name = `presences_${activeGroup}_${today}.pdf`;
+    if(period === "ALL") name = `presences_${activeGroup}_tout_${today}.pdf`;
+    else if(period.startsWith("Y:")) name = `presences_${activeGroup}_${period.slice(2)}_${today}.pdf`;
+    else if(period.startsWith("M:")) name = `presences_${activeGroup}_${period.slice(2)}_${today}.pdf`;
+
+    downloadBlob(blob, name);
+  }
+
+  async function exportMonth(yyyyMM){
+    const blob = await buildPdfBlob([yyyyMM]);
+    const today = new Date().toISOString().slice(0,10);
+    downloadBlob(blob, `presences_${activeGroup}_${yyyyMM}_${today}.pdf`);
+  }
+
+  async function shareMonth(yyyyMM){
+    const blob = await buildPdfBlob([yyyyMM]);
+    const today = new Date().toISOString().slice(0,10);
+    const file = new File([blob], `presences_${activeGroup}_${yyyyMM}_${today}.pdf`, { type:"application/pdf" });
+
+    if(navigator.share && navigator.canShare && navigator.canShare({ files:[file] })){
+      try{
+        await navigator.share({
+          title: `${GROUPS[activeGroup]} — Présences`,
+          text: `${GROUPS[activeGroup]} — ${monthLabel(yyyyMM)}`,
+          files: [file]
+        });
+      }catch{}
+    }else{
+      downloadBlob(blob, `presences_${activeGroup}_${yyyyMM}_${today}.pdf`);
+      alert("Partage direct non supporté ici. PDF téléchargé : tu peux l’envoyer via WhatsApp/Mail.");
+    }
+  }
+
+  // ====== ✅ Sauvegarde locale (JSON) ======
+  function buildBackupObject(){
+    const fr = loadData("FR");
+    const rom = loadData("ROM");
+    return {
+      app: "presence-ixelles",
+      version: APP_BACKUP_VERSION,
+      createdAt: new Date().toISOString(),
+      groups: { FR: fr, ROM: rom }
+    };
+  }
+
+  function downloadBackup(){
+    const backup = buildBackupObject();
+    const today = new Date().toISOString().slice(0,10);
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type:"application/json" });
+    downloadBlob(blob, `presence_backup_${today}.json`);
+  }
+
+  function validateBackup(obj){
+    if(!obj || typeof obj !== "object") return false;
+    if(!obj.groups || typeof obj.groups !== "object") return false;
+    if(!("FR" in obj.groups) || !("ROM" in obj.groups)) return false;
+    return true;
+  }
+
+  function applyBackup(obj){
+    const fr = normalizeEntries(obj.groups.FR);
+    const rom = normalizeEntries(obj.groups.ROM);
+    saveData("FR", fr);
+    saveData("ROM", rom);
+  }
+
+  async function restoreFromFile(file){
+    try{
+      const text = await file.text();
+      const obj = JSON.parse(text);
+
+      if(!validateBackup(obj)){
+        alert("Fichier de sauvegarde invalide.");
+        return;
+      }
+
+      const ok = confirm("Restaurer cette sauvegarde va remplacer les données actuelles sur ce téléphone (FR + ROM). Continuer ?");
+      if(!ok) return;
+
+      applyBackup(obj);
+
+      // recharger l'écran courant
+      data = loadData(activeGroup);
+      render();
+      alert("Restauration terminée ✅");
+    }catch(e){
+      alert("Impossible de lire ce fichier. Vérifie que c'est bien un .json de sauvegarde.");
+    }
+  }
+
+  // ====== CRUD ======
+  window.deleteEntry = function(index){
+    data.splice(index, 1);
+    saveData(activeGroup, data);
+    render();
+  };
+
+  function addEntry(){
+    if(!$date.value){
+      alert("Date manquante");
+      return;
+    }
+    const salleVal = ($countSalle.value === "") ? 0 : Number($countSalle.value);
+    const zoomVal  = ($countZoom.value  === "") ? 0 : Number($countZoom.value);
+
+    if(salleVal < 0 || zoomVal < 0 || !Number.isFinite(salleVal) || !Number.isFinite(zoomVal)){
+      alert("Valeurs invalides");
+      return;
+    }
+    if(salleVal === 0 && zoomVal === 0){
+      alert("Ajoute au moins Salle ou Zoom.");
+      return;
+    }
+
+    const d = $date.value;
+    const y = yearKey(d);
+    const m = monthKey(d);
+
+    data.push({ date: d, salle: salleVal, zoom: zoomVal });
+    data.sort((a,b)=>a.date.localeCompare(b.date));
+
+    $countSalle.value = "";
+    $countZoom.value  = "";
+    saveData(activeGroup, data);
+    render();
+
+    setTimeout(()=>openAndScrollTo(y,m), 50);
+    $countSalle.focus();
+  }
+
+  function render(){
+    $groupBadge.textContent = GROUPS[activeGroup] || "Groupe ?";
+    refreshExportPeriod();
+
+    $container.innerHTML = "";
+    const grouped = groupYearMonth(data);
+    const years = Object.keys(grouped).sort();
+
+    if(!years.length){
+      $container.innerHTML = `<div class="hint">Aucune donnée pour le moment.</div>`;
+      return;
+    }
+
+    const currentYear = new Date().toISOString().slice(0,4);
+
+    years.forEach(y=>{
+      const months = Object.keys(grouped[y]).sort();
+
+      const yearMeetings = months.reduce((s,m)=>s + grouped[y][m].length, 0);
+      const yearSalle = months.reduce((s,m)=>s + grouped[y][m].reduce((a,e)=>a+entrySalle(e),0), 0);
+      const yearZoom  = months.reduce((s,m)=>s + grouped[y][m].reduce((a,e)=>a+entryZoom(e),0), 0);
+      const yearTotal = yearSalle + yearZoom;
+
+      const yearAvgSalle = yearMeetings ? yearSalle / yearMeetings : 0;
+      const yearAvgZoom  = yearMeetings ? yearZoom / yearMeetings : 0;
+      const yearAvgTotal = yearMeetings ? yearTotal / yearMeetings : 0;
+
+      const yearDetails = document.createElement("details");
+      yearDetails.className = "block";
+      yearDetails.dataset.year = y;
+      if(y === currentYear) yearDetails.open = true;
+
+      const monthsHtml = months.map(m=>{
+        const entries = grouped[y][m];
+        const n = entries.length;
+
+        const salle = entries.reduce((s,e)=>s + entrySalle(e), 0);
+        const zoom  = entries.reduce((s,e)=>s + entryZoom(e), 0);
+        const total = salle + zoom;
+
+        const avgSalle = n ? salle/n : 0;
+        const avgZoom  = n ? zoom/n : 0;
+        const avgTotal = n ? total/n : 0;
+
+        const rows = entries.map(e=>{
+          const idx = data.indexOf(e);
+          const s = entrySalle(e);
+          const z = entryZoom(e);
+          const t = s+z;
+
+          return `
+            <div class="item">
+              <div>
+                <div class="item-date">${formatDateFR(e.date)}</div>
+                <div class="subline">Salle / Zoom / Total</div>
+              </div>
+              <div class="right">
+                <span class="pill pill-salle">Salle ${s}</span>
+                <span class="pill pill-zoom">Zoom ${z}</span>
+                <span class="pill pill-total">Total ${t}</span>
+                <button class="del" onclick="deleteEntry(${idx})" aria-label="Supprimer">✖</button>
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        return `
+          <details class="block" data-month="${m}" style="margin:10px 14px 14px;">
+            <summary class="sum">
+              <div class="left">
+                <div class="title">${monthLabel(m)}</div>
+                <div class="meta">
+                  ${n} réunions •
+                  Salle ${salle} (moy ${round1(avgSalle)}) •
+                  Zoom ${zoom} (moy ${round1(avgZoom)}) •
+                  Total ${total} (moy ${round1(avgTotal)})
+                </div>
+              </div>
+              <div class="actions">
+                <div class="icon-btn" onclick="event.preventDefault(); exportMonth('${m}')" title="Exporter PDF">
+                  <span>📤</span>
+                </div>
+                <div class="icon-btn" onclick="event.preventDefault(); shareMonth('${m}')" title="Partager">
+                  <svg class="share-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="18" cy="5" r="3"></circle>
+                    <circle cx="6" cy="12" r="3"></circle>
+                    <circle cx="18" cy="19" r="3"></circle>
+                    <line x1="8.6" y1="10.9" x2="15.4" y2="6.1" stroke="#111" stroke-width="2"></line>
+                    <line x1="8.6" y1="13.1" x2="15.4" y2="17.9" stroke="#111" stroke-width="2"></line>
+                  </svg>
+                </div>
+                <span class="chev" aria-hidden="true"></span>
+              </div>
+            </summary>
+            <div class="list">
+              ${rows || `<div class="hint">Aucune réunion.</div>`}
+            </div>
+          </details>
+        `;
+      }).join("");
+
+      yearDetails.innerHTML = `
+        <summary class="sum">
+          <div class="left">
+            <div class="title">${y}</div>
+            <div class="meta">
+              ${yearMeetings} réunions •
+              Salle ${yearSalle} (moy ${round1(yearAvgSalle)}) •
+              Zoom ${yearZoom} (moy ${round1(yearAvgZoom)}) •
+              Total ${yearTotal} (moy ${round1(yearAvgTotal)})
+            </div>
+          </div>
+          <div class="actions">
+            <span class="chev" aria-hidden="true"></span>
+          </div>
+        </summary>
+        <div style="padding-bottom: 6px;">
+          ${monthsHtml}
+        </div>
+      `;
+      $container.appendChild(yearDetails);
+    });
+  }
+
+  function showPick(){
+    $appScreen.style.display = "none";
+    $pickScreen.style.display = "flex";
+  }
+  function showApp(){
+    $pickScreen.style.display = "none";
+    $appScreen.style.display = "block";
+    data = loadData(activeGroup);
+    render();
+  }
+  function setGroup(g){
+    activeGroup = g;
+    localStorage.setItem("active_group", g);
+    showApp();
+  }
+
+  // UI events
+  document.getElementById("pickFR").addEventListener("click", ()=>setGroup("FR"));
+  document.getElementById("pickROM").addEventListener("click", ()=>setGroup("ROM"));
+  document.getElementById("changeGroupBtn").addEventListener("click", showPick);
+
+  document.getElementById("addBtn").addEventListener("click", addEntry);
+  document.getElementById("exportBtn").addEventListener("click", exportSelected);
+
+  $countSalle.addEventListener("keydown", (e)=>{ if(e.key === "Enter") $countZoom.focus(); });
+  $countZoom.addEventListener("keydown", (e)=>{ if(e.key === "Enter") addEntry(); });
+
+  // Backup / Restore
+  $backupBtn.addEventListener("click", downloadBackup);
+  $restoreBtn.addEventListener("click", ()=> $restoreFile.click());
+  $restoreFile.addEventListener("change", (e)=>{
+    const file = e.target.files && e.target.files[0];
+    e.target.value = ""; // reset
+    if(file) restoreFromFile(file);
+  });
+
+  // default date
+  $date.value = new Date().toISOString().slice(0,10);
+
+  // boot
+  if(!activeGroup || !GROUPS[activeGroup]) showPick();
+  else showApp();
+</script>
+
+<script>
+  if("serviceWorker" in navigator){
+    navigator.serviceWorker.register("./sw.js");
+  }
+</script>
+
+</body>
+</html>
+
     h1{ margin:8px 0 14px; text-align:center; font-size:22px; }
 
     .card{
@@ -727,3 +1573,4 @@
 
 </body>
 </html>
+
